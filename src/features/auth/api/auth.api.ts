@@ -9,7 +9,7 @@ export function loginRequest(payload: LoginRequest) {
     scope: '',
   });
 
-  return apiFetch<TokenResponse>('/auth/login', {
+  return apiFetch<TokenResponse>('/user/auth/login', {
     method: 'POST',
     skipAuth: true,
     skipRefresh: true,
@@ -22,7 +22,7 @@ export function loginRequest(payload: LoginRequest) {
 }
 
 export function refreshRequest() {
-  return apiFetch<TokenResponse>('/auth/refresh', {
+  return apiFetch<TokenResponse>('/user/auth/refresh', {
     method: 'POST',
     skipAuth: true,
     skipRefresh: true,
@@ -31,7 +31,7 @@ export function refreshRequest() {
 }
 
 export function logoutRequest() {
-  return apiFetch<void>('/auth/logout', {
+  return apiFetch<void>('/user/auth/logout', {
     method: 'POST',
     skipAuth: true,
     skipRefresh: true,

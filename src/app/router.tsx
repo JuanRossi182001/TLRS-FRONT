@@ -1,6 +1,11 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { AlertsPage } from '../features/alerts/pages/AlertsPage';
+import { AdminClientsPage } from '../features/admin/pages/AdminClientsPage';
+import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage';
+import { AdminDevicesPage } from '../features/admin/pages/AdminDevicesPage';
+import { AdminUsersPage } from '../features/admin/pages/AdminUsersPage';
+import { AdminRoute } from '../features/auth/components/AdminRoute';
 import { DeviceDetailPage } from '../features/devices/pages/DeviceDetailPage';
 import { DevicesPage } from '../features/devices/pages/DevicesPage';
 import { MapPage } from '../features/map/pages/MapPage';
@@ -43,6 +48,32 @@ export const router = createBrowserRouter([
       {
         path: 'alerts',
         element: <AlertsPage />,
+      },
+      {
+        path: 'admin',
+        element: <AdminRoute />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/app/admin/dashboard" replace />,
+          },
+          {
+            path: 'dashboard',
+            element: <AdminDashboardPage />,
+          },
+          {
+            path: 'devices',
+            element: <AdminDevicesPage />,
+          },
+          {
+            path: 'clients',
+            element: <AdminClientsPage />,
+          },
+          {
+            path: 'users',
+            element: <AdminUsersPage />,
+          },
+        ],
       },
     ],
   },

@@ -3,7 +3,7 @@ import { useAuth } from '../../features/auth/hooks/useAuth';
 import { BrandLogo, StatusBadge } from '../components';
 
 export function AppHeader() {
-  const { logout } = useAuth();
+  const { isAdmin, logout } = useAuth();
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -26,6 +26,7 @@ export function AppHeader() {
         </div>
 
         <div className="flex items-center gap-3">
+          {isAdmin ? <StatusBadge label="Admin" tone="warning" /> : null}
           <StatusBadge label="Online" tone="success" />
           <button
             type="button"

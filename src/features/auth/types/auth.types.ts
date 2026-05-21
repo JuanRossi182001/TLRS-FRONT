@@ -21,6 +21,7 @@ export type AuthContextValue = {
   accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isAdmin: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 };

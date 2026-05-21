@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../features/auth/hooks/useAuth';
 import { BrandLogo } from '../components';
 
 const navItems = [
@@ -8,6 +9,11 @@ const navItems = [
 ];
 
 export function DesktopSidebar() {
+  const { isAdmin } = useAuth();
+  const visibleNavItems = isAdmin
+    ? [...navItems, { to: '/app/admin/dashboard', label: 'Panel admin', marker: 'P' }]
+    : navItems;
+
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-brand-border/70 bg-brand-surface/80 p-4 shadow-xl shadow-brand-primary/5 backdrop-blur-xl lg:flex lg:flex-col">
       <div className="rounded-3xl bg-brand-primary p-5 shadow-lg shadow-brand-primary/20">
@@ -21,7 +27,7 @@ export function DesktopSidebar() {
       </div>
 
       <nav className="mt-5 flex flex-1 flex-col gap-2">
-        {navItems.map((item) => (
+        {visibleNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

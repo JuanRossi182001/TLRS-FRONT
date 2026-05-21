@@ -7,6 +7,7 @@ import {
 } from '../../../shared/api/authTokenStore';
 import { loginRequest, logoutRequest, refreshRequest } from '../api/auth.api';
 import type { AuthContextValue } from '../types/auth.types';
+import { getIsAdminFromToken } from '../utils/jwt';
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -66,6 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       accessToken,
       isAuthenticated: Boolean(accessToken),
       isLoading,
+      isAdmin: getIsAdminFromToken(accessToken),
       login,
       logout,
     }),

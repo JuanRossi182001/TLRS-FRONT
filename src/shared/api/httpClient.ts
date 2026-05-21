@@ -28,7 +28,7 @@ function getApiBaseUrl() {
 }
 
 function isAuthPath(path: string) {
-  return path === '/auth/login' || path === '/auth/refresh' || path === '/auth/logout';
+  return path === '/user/auth/login' || path === '/user/auth/refresh' || path === '/user/auth/logout';
 }
 
 async function getErrorMessage(response: Response) {
@@ -87,7 +87,7 @@ async function request(path: string, options: ApiFetchOptions) {
 
 async function refreshAccessToken() {
   if (!refreshPromise) {
-    refreshPromise = fetch(`${getApiBaseUrl()}/auth/refresh`, {
+    refreshPromise = fetch(`${getApiBaseUrl()}/user/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
       headers: {
