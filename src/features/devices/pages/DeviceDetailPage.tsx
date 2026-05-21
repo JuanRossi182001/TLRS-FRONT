@@ -1,27 +1,33 @@
 import { Link, useParams } from 'react-router-dom';
-import { Card, EmptyState, PageHeader, StatusBadge } from '../../../shared/components';
-import { AssetBadge } from '../components/AssetBadge';
-import { ClientBadge } from '../components/ClientBadge';
-import { DeviceLastSeen } from '../components/DeviceLastSeen';
-import { DeviceLocationPreview } from '../components/DeviceLocationPreview';
+import { Card, EmptyState, ErrorState, LoadingState, PageHeader, StatusBadge } from '../../../shared/components';
 import { DeviceStateBadge } from '../components/DeviceStateBadge';
-import { devicesMock } from '../mocks/devices.mock';
-
-function formatCoordinate(value: number) {
-  return value.toFixed(5);
-}
+import { useMyDevices } from '../hooks/useMyDevices';
 
 export function DeviceDetailPage() {
   const { deviceId } = useParams<{ deviceId: string }>();
   const idDevice = Number(deviceId);
-  const item = devicesMock.find((trackingItem) => trackingItem.device.idDevice === idDevice);
+  const { data: devices = [], isError, isLoading, error } = useMyDevices();
+  const device = devices.find((item) => item.idDevice === idDevice);
 
-  if (!item) {
+  if (isLoading) {
+    return <LoadingState message="Cargando dispositivo..." />;
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        title="No pudimos cargar el dispositivo"
+        message={error instanceof Error ? error.message : 'Intentalo nuevamente.'}
+      />
+    );
+  }
+
+  if (!device) {
     return (
       <section className="space-y-4">
         <PageHeader
           title="Device no encontrado"
-          description="No hay un device mock asociado al identificador solicitado."
+          description="No hay un device asociado al identificador solicitado."
         />
 
         <EmptyState
@@ -31,7 +37,7 @@ export function DeviceDetailPage() {
 
         <Link
           to="/app/devices"
-          className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          className="inline-flex items-center justify-center rounded-md border border-brand-border bg-brand-surface px-4 py-2 text-sm font-medium text-brand-primary transition hover:bg-brand-surfaceSoft"
         >
           Volver al listado
         </Link>
@@ -39,143 +45,62 @@ export function DeviceDetailPage() {
     );
   }
 
-  const { device, asset, client, lastLocation } = item;
-
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <PageHeader
         title={device.name}
-        description="Detalle tecnico del device, su client, asset asociado y ultima location recibida."
+        description="Detalle del device devuelto por /devices/my-devices."
         actions={<DeviceStateBadge state={device.state} />}
       />
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
-        <Card>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-slate-950">Device</h2>
-            <StatusBadge
-              label={device.active ? 'Activo' : 'Inactivo'}
-              tone={device.active ? 'success' : 'default'}
-            />
+      <Card className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-xl font-semibold tracking-tight text-brand-text">Device</h2>
+          <StatusBadge
+            label={device.active ? 'Activo' : 'Inactivo'}
+            tone={device.active ? 'success' : 'default'}
+          />
+        </div>
+
+        <dl className="grid gap-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+            <dt className="font-medium text-brand-muted">ID</dt>
+            <dd className="mt-1 text-brand-text">{device.idDevice}</dd>
           </div>
-
-          <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="font-medium text-slate-500">ID</dt>
-              <dd className="mt-1 text-slate-950">{device.idDevice}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Serial</dt>
-              <dd className="mt-1 text-slate-950">{device.serial}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Tipo</dt>
-              <dd className="mt-1 text-slate-950">{device.type}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Protocolo</dt>
-              <dd className="mt-1 uppercase text-slate-950">
-                {device.communicationProtocol}
-              </dd>
-            </div>
-            <div className="sm:col-span-2">
-              <dt className="font-medium text-slate-500">Ultima conexion</dt>
-              <dd className="mt-1 text-slate-950">
-                <DeviceLastSeen value={device.lastSeenAt} />
-              </dd>
-            </div>
-          </dl>
-        </Card>
-
-        <Card>
-          <h2 className="text-lg font-semibold text-slate-950">Relaciones</h2>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <ClientBadge client={client} />
-            <AssetBadge asset={asset} />
+          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+            <dt className="font-medium text-brand-muted">Serial</dt>
+            <dd className="mt-1 text-brand-text">{device.serial}</dd>
           </div>
-
-          <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="font-medium text-slate-500">Client</dt>
-              <dd className="mt-1 text-slate-950">{client?.name ?? 'Sin client asociado'}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Email client</dt>
-              <dd className="mt-1 text-slate-950">{client?.email ?? 'Sin datos'}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Asset type</dt>
-              <dd className="mt-1 text-slate-950">{asset?.assetType ?? 'Sin asset'}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Asset serial</dt>
-              <dd className="mt-1 text-slate-950">{asset?.serial ?? 'Sin datos'}</dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Asset status</dt>
-              <dd className="mt-1 text-slate-950">{asset?.status ?? 'Sin datos'}</dd>
-            </div>
-          </dl>
-        </Card>
-      </div>
-
-      <Card>
-        <h2 className="text-lg font-semibold text-slate-950">Ultima location</h2>
-        {lastLocation ? (
-          <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
-            <div>
-              <dt className="font-medium text-slate-500">Latitud</dt>
-              <dd className="mt-1 text-slate-950">
-                {formatCoordinate(lastLocation.latitude)}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Longitud</dt>
-              <dd className="mt-1 text-slate-950">
-                {formatCoordinate(lastLocation.longitude)}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Accuracy</dt>
-              <dd className="mt-1 text-slate-950">
-                {lastLocation.accuracy !== undefined ? `${lastLocation.accuracy} m` : 'Sin datos'}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Altitud</dt>
-              <dd className="mt-1 text-slate-950">
-                {lastLocation.altitude !== undefined ? `${lastLocation.altitude} m` : 'Sin datos'}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Device timestamp</dt>
-              <dd className="mt-1 text-slate-950">
-                <DeviceLastSeen value={lastLocation.deviceTimestamp} />
-              </dd>
-            </div>
-            <div>
-              <dt className="font-medium text-slate-500">Received at</dt>
-              <dd className="mt-1 text-slate-950">
-                <DeviceLastSeen value={lastLocation.receivedAt} />
-              </dd>
-            </div>
-            <div className="sm:col-span-2">
-              <dt className="font-medium text-slate-500">Preview</dt>
-              <dd className="mt-1 text-slate-950">
-                <DeviceLocationPreview location={lastLocation} />
-              </dd>
-            </div>
-          </dl>
-        ) : (
-          <p className="mt-4 text-sm text-slate-600">
-            Este device todavia no tiene ubicacion registrada.
-          </p>
-        )}
+          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+            <dt className="font-medium text-brand-muted">Nombre</dt>
+            <dd className="mt-1 text-brand-text">{device.name}</dd>
+          </div>
+          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+            <dt className="font-medium text-brand-muted">Tipo</dt>
+            <dd className="mt-1 text-brand-text">{device.type}</dd>
+          </div>
+          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+            <dt className="font-medium text-brand-muted">Estado</dt>
+            <dd className="mt-1 text-brand-text">{device.state}</dd>
+          </div>
+          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+            <dt className="font-medium text-brand-muted">Protocolo</dt>
+            <dd className="mt-1 uppercase text-brand-text">{device.communicationProtocol}</dd>
+          </div>
+          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+            <dt className="font-medium text-brand-muted">Client ID</dt>
+            <dd className="mt-1 text-brand-text">{device.clientId ?? 'Sin client'}</dd>
+          </div>
+          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+            <dt className="font-medium text-brand-muted">Asset ID</dt>
+            <dd className="mt-1 text-brand-text">{device.assetId ?? 'Sin asset'}</dd>
+          </div>
+        </dl>
       </Card>
 
       <Link
         to="/app/devices"
-        className="inline-flex w-fit items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        className="inline-flex w-fit items-center justify-center rounded-full border border-brand-border/70 bg-brand-surface px-5 py-2.5 text-sm font-semibold text-brand-primary shadow-sm transition hover:bg-brand-surfaceSoft hover:shadow-md"
       >
         Volver al listado
       </Link>

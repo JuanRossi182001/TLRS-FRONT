@@ -1,30 +1,24 @@
 import { RadioTower } from 'lucide-react';
-import type { DeviceState } from '../../devices/types/device.types';
+import type { DeviceLatestLocation } from '../types/map.types';
 
 type DeviceMapMarkerProps = {
-  state: DeviceState;
+  device: DeviceLatestLocation;
   isSelected: boolean;
   onClick: () => void;
 };
 
-const markerClasses: Record<DeviceState, string> = {
-  online: 'bg-emerald-600 ring-emerald-200',
-  offline: 'bg-red-600 ring-red-200',
-  unknown: 'bg-slate-500 ring-slate-200',
-};
-
-export function DeviceMapMarker({ state, isSelected, onClick }: DeviceMapMarkerProps) {
+export function DeviceMapMarker({ device, isSelected, onClick }: DeviceMapMarkerProps) {
   return (
     <button
       type="button"
-      aria-label={`Seleccionar device ${state}`}
+      aria-label={`Seleccionar device ${device.name}`}
       onClick={(event) => {
         event.stopPropagation();
         onClick();
       }}
       className={[
-        'flex h-10 w-10 items-center justify-center rounded-full text-white shadow-lg ring-4 transition',
-        markerClasses[state],
+        'flex h-11 w-11 items-center justify-center rounded-full text-white shadow-xl ring-4 transition',
+        device.active ? 'bg-brand-success ring-emerald-100' : 'bg-brand-muted ring-white',
         isSelected ? 'scale-110' : 'hover:scale-105',
       ].join(' ')}
     >

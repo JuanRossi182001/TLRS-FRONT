@@ -1,63 +1,102 @@
 import { Link } from 'react-router-dom';
 import { Popup } from 'react-map-gl/maplibre';
-import { AssetBadge } from '../../devices/components/AssetBadge';
-import { ClientBadge } from '../../devices/components/ClientBadge';
-import { DeviceLastSeen } from '../../devices/components/DeviceLastSeen';
-import { DeviceLocationPreview } from '../../devices/components/DeviceLocationPreview';
-import { DeviceStateBadge } from '../../devices/components/DeviceStateBadge';
-import type { LocatedDeviceTrackingItem } from '../types/map.types';
+import { StatusBadge } from '../../../shared/components';
+import type { DeviceLatestLocation } from '../types/map.types';
 
 type DeviceMapPopupProps = {
-  item: LocatedDeviceTrackingItem;
+  device: DeviceLatestLocation;
   onClose: () => void;
 };
 
-export function DeviceMapPopup({ item, onClose }: DeviceMapPopupProps) {
-  const { device, asset, client, lastLocation } = item;
+function formatDateTime(value: string | null) {
+  if (!value) {
+    return 'Sin datos';
+  }
 
+  return new Intl.DateTimeFormat('es-AR', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  }).format(new Date(value));
+}
+
+function formatCoordinate(value: number) {
+  return value.toFixed(5);
+}
+
+export function DeviceMapPopup({ device, onClose }: DeviceMapPopupProps) {
   return (
     <Popup
-      latitude={lastLocation.latitude}
-      longitude={lastLocation.longitude}
+      latitude={device.latitude}
+      longitude={device.longitude}
       anchor="top"
       closeButton
       closeOnClick={false}
       onClose={onClose}
       className="hidden md:block"
-      maxWidth="320px"
+      maxWidth="340px"
     >
-      <div className="space-y-3 p-1 text-sm">
+      <div className="space-y-4 rounded-3xl bg-brand-surface p-2 text-sm">
         <div>
           <div className="flex items-start justify-between gap-2">
-            <h2 className="font-semibold text-slate-950">{device.name}</h2>
-            <DeviceStateBadge state={device.state} />
+            <h2 className="font-semibold text-brand-text">{device.name}</h2>
+            <StatusBadge
+              label={device.active ? 'Activo' : 'Inactivo'}
+              tone={device.active ? 'success' : 'default'}
+            />
           </div>
-          <p className="mt-1 text-xs text-slate-500">{device.serial}</p>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <ClientBadge client={client} />
-          <AssetBadge asset={asset} />
+          <p className="mt-1 text-xs text-brand-muted">{device.serial}</p>
         </div>
 
         <dl className="grid gap-2 text-xs">
-          <div>
-            <dt className="font-medium text-slate-500">Ubicacion</dt>
-            <dd className="mt-0.5 text-slate-900">
-              <DeviceLocationPreview location={lastLocation} />
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-2xl bg-brand-surfaceSoft p-2">
+              <dt className="font-medium text-brand-muted">Tipo</dt>
+              <dd className="mt-0.5 text-brand-text">{device.type}</dd>
+            </div>
+            <div className="rounded-2xl bg-brand-surfaceSoft p-2">
+              <dt className="font-medium text-brand-muted">Asset ID</dt>
+              <dd className="mt-0.5 text-brand-text">{device.asset_id ?? 'Sin asset'}</dd>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-2xl bg-brand-surfaceSoft p-2">
+              <dt className="font-medium text-brand-muted">Client ID</dt>
+              <dd className="mt-0.5 text-brand-text">{device.client_id ?? 'Sin client'}</dd>
+            </div>
+            <div className="rounded-2xl bg-brand-surfaceSoft p-2">
+              <dt className="font-medium text-brand-muted">Accuracy</dt>
+              <dd className="mt-0.5 text-brand-text">
+                {device.accuracy !== null ? `${device.accuracy} m` : 'Sin datos'}
+              </dd>
+            </div>
+          </div>
+          <div className="rounded-2xl bg-brand-surfaceSoft p-2">
+            <dt className="font-medium text-brand-muted">Ubicacion</dt>
+            <dd className="mt-0.5 text-brand-text">
+              {formatCoordinate(device.latitude)}, {formatCoordinate(device.longitude)}
             </dd>
           </div>
-          <div>
-            <dt className="font-medium text-slate-500">Ultima conexion</dt>
-            <dd className="mt-0.5 text-slate-900">
-              <DeviceLastSeen value={device.lastSeenAt} />
+          <div className="rounded-2xl bg-brand-surfaceSoft p-2">
+            <dt className="font-medium text-brand-muted">Altitud</dt>
+            <dd className="mt-0.5 text-brand-text">
+              {device.altitude !== null ? `${device.altitude} m` : 'Sin datos'}
             </dd>
+          </div>
+          <div className="rounded-2xl bg-brand-surfaceSoft p-2">
+            <dt className="font-medium text-brand-muted">Device timestamp</dt>
+            <dd className="mt-0.5 text-brand-text">
+              {formatDateTime(device.device_timestamp)}
+            </dd>
+          </div>
+          <div className="rounded-2xl bg-brand-surfaceSoft p-2">
+            <dt className="font-medium text-brand-muted">Received at</dt>
+            <dd className="mt-0.5 text-brand-text">{formatDateTime(device.received_at)}</dd>
           </div>
         </dl>
 
         <Link
-          to={`/app/devices/${device.idDevice}`}
-          className="inline-flex w-full items-center justify-center rounded-md bg-slate-950 px-3 py-2 text-xs font-medium text-white transition hover:bg-slate-800"
+          to={`/app/devices/${device.id_device}`}
+          className="inline-flex w-full items-center justify-center rounded-full bg-brand-primary px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-brand-primaryDark"
         >
           Ver detalle
         </Link>

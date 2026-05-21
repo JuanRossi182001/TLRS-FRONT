@@ -1,32 +1,40 @@
-import { PageHeader, StatusBadge } from '../../../shared/components';
-import { useVisibleDevices } from '../../devices/hooks/useVisibleDevices';
+import { ErrorState, LoadingState, PageHeader, StatusBadge } from '../../../shared/components';
 import { TrackingMap } from '../components/TrackingMap';
-import { useMapDevices } from '../hooks/useMapDevices';
+import { MapEmptyState } from '../components/MapEmptyState';
+import { useMyDevicesLatestLocations } from '../hooks/useMyDevicesLatestLocations';
 
 export function MapPage() {
-  const { currentUser, visibleDevices, totalVisible, online, offline } = useVisibleDevices();
-  const { devicesWithLocation, totalWithLocation, totalWithoutLocation } =
-    useMapDevices(visibleDevices);
-  const viewTitle = currentUser.role === 'admin' ? 'Vista administrador' : 'Mis dispositivos';
+  const { data: devices = [], isError, isLoading, error } = useMyDevicesLatestLocations();
+  const totalDevices = devices.length;
+  const activeDevices = devices.filter((device) => device.active).length;
+  const inactiveDevices = devices.filter((device) => !device.active).length;
 
   return (
-    <section className="flex min-h-[calc(100dvh-9rem)] flex-1 flex-col gap-4 lg:min-h-[calc(100dvh-7rem)]">
+    <section className="flex min-h-[calc(100dvh-9rem)] flex-1 flex-col gap-6 lg:min-h-[calc(100dvh-7rem)]">
       <PageHeader
         title="Mapa en tiempo real"
-        description="Ubicaciones mock de devices con ultima location registrada, listas para conectar al backend mas adelante."
+        description="Ultimas ubicaciones reportadas por tus dispositivos GPS."
         actions={
           <div className="flex flex-wrap gap-2">
-            <StatusBadge label={viewTitle} />
-            <StatusBadge label={`${totalVisible} visibles`} />
-            <StatusBadge label={`${online} online`} tone="success" />
-            <StatusBadge label={`${offline} offline`} tone="danger" />
-            <StatusBadge label={`${totalWithLocation} con ubicacion`} tone="success" />
-            <StatusBadge label={`${totalWithoutLocation} sin ubicacion`} />
+            <StatusBadge label={`${totalDevices} con ubicacion`} tone="success" />
+            <StatusBadge label={`${activeDevices} activos`} />
+            <StatusBadge label={`${inactiveDevices} inactivos`} />
           </div>
         }
       />
 
-      <TrackingMap devices={devicesWithLocation} />
+      {isLoading ? <LoadingState message="Cargando ubicaciones..." /> : null}
+
+      {isError ? (
+        <ErrorState
+          title="No pudimos cargar el mapa"
+          message={error instanceof Error ? error.message : 'Intentalo nuevamente.'}
+        />
+      ) : null}
+
+      {!isLoading && !isError && devices.length === 0 ? <MapEmptyState /> : null}
+
+      {!isLoading && !isError && devices.length > 0 ? <TrackingMap devices={devices} /> : null}
     </section>
   );
 }

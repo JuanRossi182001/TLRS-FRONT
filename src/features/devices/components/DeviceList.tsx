@@ -1,15 +1,15 @@
-import type { DeviceTrackingItem } from '../types/device.types';
+import type { Device } from '../types/device.types';
 import { DeviceCard } from './DeviceCard';
 
 type DeviceListProps = {
-  items: DeviceTrackingItem[];
+  devices: Device[];
 };
 
-export function DeviceList({ items }: DeviceListProps) {
+export function DeviceList({ devices }: DeviceListProps) {
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
-      {items.map((item) => (
-        <DeviceCard key={item.device.idDevice} item={item} />
+    <div className="grid gap-5 xl:grid-cols-2 2xl:grid-cols-3">
+      {devices.map((device) => (
+        <DeviceCard key={device.idDevice} device={device} />
       ))}
     </div>
   );

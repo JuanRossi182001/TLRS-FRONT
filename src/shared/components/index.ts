@@ -1,4 +1,5 @@
 export { Button } from './Button';
+export { BrandLogo } from './BrandLogo';
 export { Card } from './Card';
 export { EmptyState } from './EmptyState';
 export { ErrorState } from './ErrorState';

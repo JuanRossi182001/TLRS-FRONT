@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { BrandLogo } from '../components';
 
 const navItems = [
   { to: '/app/map', label: 'Mapa', marker: 'M' },
@@ -8,35 +9,45 @@ const navItems = [
 
 export function DesktopSidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-slate-200 bg-white lg:flex lg:flex-col">
-      <div className="border-b border-slate-200 px-6 py-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Plataforma
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-brand-border/70 bg-brand-surface/80 p-4 shadow-xl shadow-brand-primary/5 backdrop-blur-xl lg:flex lg:flex-col">
+      <div className="rounded-3xl bg-brand-primary p-5 shadow-lg shadow-brand-primary/20">
+        <BrandLogo variant="default" imageClassName="h-14 max-w-[200px]" />
+        <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-brand-accent">
+          Plataforma GPS / IoT
         </p>
-        <h2 className="mt-1 text-xl font-semibold text-slate-950">Monitoreo GPS</h2>
+        <h2 className="mt-1 text-lg font-semibold text-brand-background">
+          Tracking inteligente
+        </h2>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
+      <nav className="mt-5 flex flex-1 flex-col gap-2">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
               [
-                'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition',
+                'flex items-center gap-3 rounded-full px-4 py-3 text-sm font-semibold transition',
                 isActive
-                  ? 'bg-slate-950 text-white'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950',
+                  ? 'bg-brand-primary text-white shadow-md shadow-brand-primary/20'
+                  : 'text-brand-muted hover:bg-brand-surfaceSoft hover:text-brand-primary',
               ].join(' ')
             }
           >
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-current/20 text-xs font-semibold">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-current/20 text-xs font-semibold">
               {item.marker}
             </span>
             {item.label}
           </NavLink>
         ))}
       </nav>
+
+      <div className="rounded-3xl bg-brand-primary p-4 text-sm text-brand-background shadow-lg shadow-brand-primary/15">
+        <p className="font-semibold text-brand-accent">Manea</p>
+        <p className="mt-1 leading-5 text-brand-background/80">
+          Tracking inteligente para el campo.
+        </p>
+      </div>
     </aside>
   );
 }

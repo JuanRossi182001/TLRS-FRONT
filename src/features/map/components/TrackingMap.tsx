@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import maplibregl, { type StyleSpecification } from 'maplibre-gl';
-import Map, { Marker, NavigationControl } from 'react-map-gl/maplibre';
-import type { LocatedDeviceTrackingItem } from '../types/map.types';
+import Map, { Marker, NavigationControl, type MapRef } from 'react-map-gl/maplibre';
+import type { DeviceLatestLocation } from '../types/map.types';
 import { DeviceMapMarker } from './DeviceMapMarker';
 import { DeviceMapPopup } from './DeviceMapPopup';
 import { MapDeviceBottomSheet } from './MapDeviceBottomSheet';
 import { MapEmptyState } from './MapEmptyState';
 
 type TrackingMapProps = {
-  devices: LocatedDeviceTrackingItem[];
+  devices: DeviceLatestLocation[];
 };
 
 const initialViewState = {
@@ -37,46 +37,90 @@ const mapStyle: StyleSpecification = {
 };
 
 export function TrackingMap({ devices }: TrackingMapProps) {
-  const [selectedDevice, setSelectedDevice] = useState<LocatedDeviceTrackingItem | undefined>();
+  const mapRef = useRef<MapRef>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState<DeviceLatestLocation | undefined>();
+
+  useEffect(() => {
+    if (!isMapLoaded || devices.length === 0) {
+      return;
+    }
+
+    const map = mapRef.current;
+
+    if (!map) {
+      return;
+    }
+
+    if (devices.length === 1) {
+      const [device] = devices;
+      map.flyTo({
+        center: [device.longitude, device.latitude],
+        zoom: 13,
+        duration: 700,
+      });
+      return;
+    }
+
+    const bounds = devices.reduce(
+      (currentBounds, device) =>
+        currentBounds.extend([device.longitude, device.latitude]),
+      new maplibregl.LngLatBounds(
+        [devices[0].longitude, devices[0].latitude],
+        [devices[0].longitude, devices[0].latitude],
+      ),
+    );
+
+    map.fitBounds(bounds, {
+      padding: { top: 80, bottom: 120, left: 60, right: 60 },
+      duration: 700,
+      maxZoom: 14,
+    });
+  }, [devices, isMapLoaded]);
 
   if (devices.length === 0) {
     return <MapEmptyState />;
   }
 
   return (
-    <div className="relative h-[calc(100dvh-15rem)] min-h-[460px] overflow-hidden rounded-lg border border-slate-200 bg-slate-100 lg:h-[calc(100dvh-10rem)] lg:min-h-[520px]">
+    <div className="relative h-[calc(100dvh-15rem)] min-h-[460px] overflow-hidden rounded-[2rem] border border-brand-border/70 bg-brand-surface shadow-xl shadow-brand-primary/10 lg:h-[calc(100dvh-10rem)] lg:min-h-[520px]">
       <Map
+        ref={mapRef}
         mapLib={maplibregl}
         initialViewState={initialViewState}
         mapStyle={mapStyle}
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         attributionControl={{ compact: true }}
         onClick={() => setSelectedDevice(undefined)}
+        onLoad={() => setIsMapLoaded(true)}
       >
         <NavigationControl position="top-right" />
 
-        {devices.map((item) => (
+        {devices.map((device) => (
           <Marker
-            key={item.device.idDevice}
-            latitude={item.lastLocation.latitude}
-            longitude={item.lastLocation.longitude}
+            key={device.id_location}
+            latitude={device.latitude}
+            longitude={device.longitude}
             anchor="bottom"
           >
             <DeviceMapMarker
-              state={item.device.state}
-              isSelected={selectedDevice?.device.idDevice === item.device.idDevice}
-              onClick={() => setSelectedDevice(item)}
+              device={device}
+              isSelected={selectedDevice?.id_device === device.id_device}
+              onClick={() => setSelectedDevice(device)}
             />
           </Marker>
         ))}
 
         {selectedDevice ? (
-          <DeviceMapPopup item={selectedDevice} onClose={() => setSelectedDevice(undefined)} />
+          <DeviceMapPopup
+            device={selectedDevice}
+            onClose={() => setSelectedDevice(undefined)}
+          />
         ) : null}
       </Map>
 
       <MapDeviceBottomSheet
-        item={selectedDevice}
+        device={selectedDevice}
         onClose={() => setSelectedDevice(undefined)}
       />
     </div>

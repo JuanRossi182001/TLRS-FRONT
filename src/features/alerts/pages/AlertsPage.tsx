@@ -2,7 +2,7 @@ import { Card, EmptyState, PageHeader, StatusBadge } from '../../../shared/compo
 
 export function AlertsPage() {
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <PageHeader
         title="Alertas"
         description="Eventos operativos y notificaciones de dispositivos."
@@ -10,8 +10,8 @@ export function AlertsPage() {
       />
 
       <Card>
-        <h2 className="text-lg font-semibold text-slate-950">Centro de eventos</h2>
-        <p className="mt-1 text-sm text-slate-600">
+        <h2 className="text-xl font-semibold tracking-tight text-brand-text">Centro de eventos</h2>
+        <p className="mt-2 text-sm leading-6 text-brand-muted">
           Placeholder para la futura bandeja de alertas.
         </p>
       </Card>

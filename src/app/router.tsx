@@ -4,6 +4,7 @@ import { AlertsPage } from '../features/alerts/pages/AlertsPage';
 import { DeviceDetailPage } from '../features/devices/pages/DeviceDetailPage';
 import { DevicesPage } from '../features/devices/pages/DevicesPage';
 import { MapPage } from '../features/map/pages/MapPage';
+import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
 import { AppLayout } from '../shared/layouts/AppLayout';
 
 export const router = createBrowserRouter([
@@ -17,7 +18,11 @@ export const router = createBrowserRouter([
   },
   {
     path: '/app',
-    element: <AppLayout />,
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         index: true,

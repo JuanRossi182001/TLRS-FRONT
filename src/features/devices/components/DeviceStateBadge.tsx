@@ -1,26 +1,27 @@
 import type { DeviceState } from '../types/device.types';
 
 type DeviceStateBadgeProps = {
-  state: DeviceState;
+  state: string;
 };
 
 const stateConfig: Record<DeviceState, { label: string; className: string }> = {
   online: {
     label: 'Online',
-    className: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    className: 'bg-emerald-50 text-brand-success ring-brand-success/20',
   },
   offline: {
     label: 'Offline',
-    className: 'bg-red-50 text-red-700 ring-red-600/20',
+    className: 'bg-red-50 text-brand-danger ring-brand-danger/20',
   },
   unknown: {
     label: 'Unknown',
-    className: 'bg-slate-100 text-slate-700 ring-slate-500/20',
+    className: 'bg-brand-surfaceSoft text-brand-muted ring-brand-border',
   },
 };
 
 export function DeviceStateBadge({ state }: DeviceStateBadgeProps) {
-  const config = stateConfig[state];
+  const normalizedState = normalizeDeviceState(state);
+  const config = stateConfig[normalizedState];
 
   return (
     <span
@@ -32,4 +33,18 @@ export function DeviceStateBadge({ state }: DeviceStateBadgeProps) {
       {config.label}
     </span>
   );
+}
+
+export function normalizeDeviceState(state: string): DeviceState {
+  const value = state.trim().toLowerCase();
+
+  if (value === 'on' || value === 'online') {
+    return 'online';
+  }
+
+  if (value === 'off' || value === 'offline') {
+    return 'offline';
+  }
+
+  return 'unknown';
 }
