@@ -1,22 +1,28 @@
+import type { ReactNode } from 'react';
 import { StatusBadge } from '../../../shared/components';
 
 type Column<T> = {
   key: keyof T;
   label: string;
+  render?: (row: T) => ReactNode;
 };
 
-type AdminTablePlaceholderProps<T extends { id: number }> = {
+type AdminTablePlaceholderProps<T> = {
   columns: Column<T>[];
   rows: T[];
-  actions: string[];
+  getRowId: (row: T) => string | number;
+  renderActions?: (row: T) => ReactNode;
   note?: string;
+  badgeLabel?: string;
 };
 
-export function AdminTablePlaceholder<T extends { id: number }>({
+export function AdminTablePlaceholder<T>({
   columns,
   rows,
-  actions,
-  note = 'Las acciones se conectaran cuando existan los endpoints admin.',
+  getRowId,
+  renderActions,
+  note = 'Datos obtenidos desde los endpoints admin.',
+  badgeLabel = 'Admin API',
 }: AdminTablePlaceholderProps<T>) {
   return (
     <div className="overflow-hidden rounded-3xl border border-brand-border/60 bg-brand-surface shadow-sm shadow-brand-primary/5">
@@ -34,25 +40,14 @@ export function AdminTablePlaceholder<T extends { id: number }>({
           </thead>
           <tbody className="divide-y divide-brand-border/50">
             {rows.map((row) => (
-              <tr key={row.id} className="hover:bg-brand-surfaceSoft/60">
+              <tr key={getRowId(row)} className="hover:bg-brand-surfaceSoft/60">
                 {columns.map((column) => (
                   <td key={String(column.key)} className="whitespace-nowrap px-5 py-4 text-brand-text">
-                    {String(row[column.key] ?? 'Sin datos')}
+                    {column.render ? column.render(row) : String(row[column.key] ?? 'Sin datos')}
                   </td>
                 ))}
                 <td className="whitespace-nowrap px-5 py-4">
-                  <div className="flex flex-wrap gap-2">
-                    {actions.map((action) => (
-                      <button
-                        key={action}
-                        type="button"
-                        disabled
-                        className="rounded-full border border-brand-border bg-brand-surface px-3 py-1.5 text-xs font-semibold text-brand-muted"
-                      >
-                        {action}
-                      </button>
-                    ))}
-                  </div>
+                  {renderActions ? renderActions(row) : null}
                 </td>
               </tr>
             ))}
@@ -61,7 +56,7 @@ export function AdminTablePlaceholder<T extends { id: number }>({
       </div>
       <div className="flex items-center justify-between gap-3 border-t border-brand-border/60 bg-brand-surfaceSoft px-5 py-4">
         <p className="text-sm text-brand-muted">{note}</p>
-        <StatusBadge label="Mock admin" />
+        <StatusBadge label={badgeLabel} />
       </div>
     </div>
   );

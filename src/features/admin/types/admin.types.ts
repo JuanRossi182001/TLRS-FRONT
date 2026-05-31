@@ -1,37 +1,53 @@
 export type AdminStats = {
-  totalDevices: number;
-  activeDevices: number;
-  inactiveDevices: number;
-  onlineDevices: number;
-  offlineDevices: number;
-  totalClients: number;
-  totalUsers: number;
+  devices_data: {
+    all_devices: number;
+    active_devices: number;
+    inactive_devices: number;
+    online_devices: number;
+    offline_devices: number;
+  };
+  clients_data: number;
+  users_data: number;
 };
 
-export type AdminDevice = {
-  id: number;
+export type AdminDeviceListItem = {
+  id_device: number;
   serial: string;
   name: string;
-  client: string;
-  asset: string;
+  client_name: string | null;
+  asset_name: string | null;
   active: boolean;
   state: string;
 };
 
 export type AdminClient = {
-  id: number;
+  id_client: number;
   name: string;
   email: string;
-  users: number;
-  devices: number;
-  status: string;
+  device_count: number;
+  user_count: number;
 };
 
 export type AdminUser = {
-  id: number;
-  username: string;
-  client: string;
+  id_user: number;
+  name: string;
+  email: string;
+  id_client: number;
   is_admin: boolean;
+};
+
+export type AdminDeviceUpdateRequest = {
+  serial: string;
+  name: string;
+  type: string;
+  state: string;
+  communication_protocol: string;
+  client_id: number | null;
+  asset_id: number | null;
   active: boolean;
-  last_login?: string;
+  last_seen_at: string | null;
+};
+
+export type AdminDeviceUpdateResponse = AdminDeviceUpdateRequest & {
+  id_device: number;
 };

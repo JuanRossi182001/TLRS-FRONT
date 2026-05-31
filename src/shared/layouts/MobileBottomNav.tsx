@@ -3,7 +3,8 @@ import { useAuth } from '../../features/auth/hooks/useAuth';
 
 const navItems = [
   { to: '/app/map', label: 'Mapa', marker: 'M' },
-  { to: '/app/devices', label: 'Dispositivos', marker: 'D' },
+  { to: '/app/devices', label: 'Disp.', marker: 'D' },
+  { to: '/app/geofences', label: 'Cercas', marker: 'G' },
   { to: '/app/alerts', label: 'Alertas', marker: 'A' },
 ];
 
@@ -18,7 +19,7 @@ export function MobileBottomNav() {
       <div
         className={[
           'grid h-16 gap-1 rounded-full border border-brand-border/70 bg-brand-surface/95 p-1 shadow-xl shadow-brand-primary/10 backdrop-blur-xl',
-          isAdmin ? 'grid-cols-4' : 'grid-cols-3',
+          isAdmin ? 'grid-cols-5' : 'grid-cols-4',
         ].join(' ')}
       >
         {visibleNavItems.map((item) => (

@@ -20,8 +20,8 @@ export function DevicesPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <Card className="bg-brand-primary text-white">
-          <p className="text-sm font-medium text-brand-background/70">Total devices</p>
-          <p className="mt-3 text-3xl font-semibold text-white">{totalDevices}</p>
+          <p className="text-sm font-medium text-brand-primary/70">Total devices</p>
+          <p className="mt-3 text-3xl font-semibold text-brand-primary">{totalDevices}</p>
         </Card>
         <Card className="bg-brand-surface">
           <p className="text-sm font-medium text-brand-muted">Online</p>

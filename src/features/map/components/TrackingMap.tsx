@@ -1,14 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl, { type StyleSpecification } from 'maplibre-gl';
 import Map, { Marker, NavigationControl, type MapRef } from 'react-map-gl/maplibre';
+import { GeofenceDraftLayer } from '../../geofences/components/GeofenceDraftLayer';
+import { GeofenceLayer } from '../../geofences/components/GeofenceLayer';
+import type { GeoFenceRead, Position } from '../../geofences/types/geofence.types';
 import type { DeviceLatestLocation } from '../types/map.types';
 import { DeviceMapMarker } from './DeviceMapMarker';
 import { DeviceMapPopup } from './DeviceMapPopup';
 import { MapDeviceBottomSheet } from './MapDeviceBottomSheet';
-import { MapEmptyState } from './MapEmptyState';
 
 type TrackingMapProps = {
   devices: DeviceLatestLocation[];
+  geofences?: GeoFenceRead[];
+  isDrawingGeofence?: boolean;
+  draftPoints?: Position[];
+  onAddDraftPoint?: (point: Position) => void;
+  onMoveDraftPoint?: (index: number, point: Position) => void;
+  onRemoveDraftPoint?: (index: number) => void;
 };
 
 const initialViewState = {
@@ -36,7 +44,15 @@ const mapStyle: StyleSpecification = {
   ],
 };
 
-export function TrackingMap({ devices }: TrackingMapProps) {
+export function TrackingMap({
+  devices,
+  geofences = [],
+  isDrawingGeofence = false,
+  draftPoints = [],
+  onAddDraftPoint,
+  onMoveDraftPoint,
+  onRemoveDraftPoint,
+}: TrackingMapProps) {
   const mapRef = useRef<MapRef>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<DeviceLatestLocation | undefined>();
@@ -78,10 +94,6 @@ export function TrackingMap({ devices }: TrackingMapProps) {
     });
   }, [devices, isMapLoaded]);
 
-  if (devices.length === 0) {
-    return <MapEmptyState />;
-  }
-
   return (
     <div className="relative h-[calc(100dvh-15rem)] min-h-[460px] overflow-hidden rounded-[2rem] border border-brand-border/70 bg-brand-surface shadow-xl shadow-brand-primary/10 lg:h-[calc(100dvh-10rem)] lg:min-h-[520px]">
       <Map
@@ -91,10 +103,25 @@ export function TrackingMap({ devices }: TrackingMapProps) {
         mapStyle={mapStyle}
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
         attributionControl={{ compact: true }}
-        onClick={() => setSelectedDevice(undefined)}
+        cursor={isDrawingGeofence ? 'crosshair' : 'grab'}
+        onClick={(event) => {
+          if (isDrawingGeofence) {
+            onAddDraftPoint?.([event.lngLat.lng, event.lngLat.lat]);
+            return;
+          }
+
+          setSelectedDevice(undefined);
+        }}
         onLoad={() => setIsMapLoaded(true)}
       >
         <NavigationControl position="top-right" />
+
+        <GeofenceLayer geofences={geofences} />
+        <GeofenceDraftLayer
+          on_move_point={(index, point) => onMoveDraftPoint?.(index, point)}
+          on_remove_point={(index) => onRemoveDraftPoint?.(index)}
+          points={draftPoints}
+        />
 
         {devices.map((device) => (
           <Marker
@@ -111,7 +138,7 @@ export function TrackingMap({ devices }: TrackingMapProps) {
           </Marker>
         ))}
 
-        {selectedDevice ? (
+        {selectedDevice && !isDrawingGeofence ? (
           <DeviceMapPopup
             device={selectedDevice}
             onClose={() => setSelectedDevice(undefined)}
@@ -120,7 +147,7 @@ export function TrackingMap({ devices }: TrackingMapProps) {
       </Map>
 
       <MapDeviceBottomSheet
-        device={selectedDevice}
+        device={isDrawingGeofence ? undefined : selectedDevice}
         onClose={() => setSelectedDevice(undefined)}
       />
     </div>

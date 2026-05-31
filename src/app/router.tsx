@@ -8,6 +8,7 @@ import { AdminUsersPage } from '../features/admin/pages/AdminUsersPage';
 import { AdminRoute } from '../features/auth/components/AdminRoute';
 import { DeviceDetailPage } from '../features/devices/pages/DeviceDetailPage';
 import { DevicesPage } from '../features/devices/pages/DevicesPage';
+import { GeofencesPage } from '../features/geofences/pages/GeofencesPage';
 import { MapPage } from '../features/map/pages/MapPage';
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
 import { AppLayout } from '../shared/layouts/AppLayout';
@@ -48,6 +49,10 @@ export const router = createBrowserRouter([
       {
         path: 'alerts',
         element: <AlertsPage />,
+      },
+      {
+        path: 'geofences',
+        element: <GeofencesPage />,
       },
       {
         path: 'admin',
