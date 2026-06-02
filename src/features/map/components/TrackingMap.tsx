@@ -3,6 +3,7 @@ import maplibregl, { type StyleSpecification } from 'maplibre-gl';
 import Map, { Marker, NavigationControl, type MapRef } from 'react-map-gl/maplibre';
 import { GeofenceDraftLayer } from '../../geofences/components/GeofenceDraftLayer';
 import { GeofenceLayer } from '../../geofences/components/GeofenceLayer';
+import type { GeoFenceAssetState } from '../../geofences/types/geofenceState.types';
 import type { GeoFenceRead, Position } from '../../geofences/types/geofence.types';
 import type { DeviceLatestLocation } from '../types/map.types';
 import { DeviceMapMarker } from './DeviceMapMarker';
@@ -12,6 +13,7 @@ import { MapDeviceBottomSheet } from './MapDeviceBottomSheet';
 type TrackingMapProps = {
   devices: DeviceLatestLocation[];
   geofences?: GeoFenceRead[];
+  geofenceStates?: GeoFenceAssetState[];
   isDrawingGeofence?: boolean;
   draftPoints?: Position[];
   onAddDraftPoint?: (point: Position) => void;
@@ -47,6 +49,7 @@ const mapStyle: StyleSpecification = {
 export function TrackingMap({
   devices,
   geofences = [],
+  geofenceStates = [],
   isDrawingGeofence = false,
   draftPoints = [],
   onAddDraftPoint,
@@ -56,6 +59,13 @@ export function TrackingMap({
   const mapRef = useRef<MapRef>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<DeviceLatestLocation | undefined>();
+  const selectedDeviceState = selectedDevice
+    ? geofenceStates.find(
+        (state) =>
+          state.device_id === selectedDevice.id_device ||
+          (selectedDevice.asset_id !== null && state.asset_id === selectedDevice.asset_id),
+      )
+    : undefined;
 
   useEffect(() => {
     if (!isMapLoaded || devices.length === 0) {
@@ -132,6 +142,11 @@ export function TrackingMap({
           >
             <DeviceMapMarker
               device={device}
+              geofenceState={geofenceStates.find(
+                (state) =>
+                  state.device_id === device.id_device ||
+                  (device.asset_id !== null && state.asset_id === device.asset_id),
+              )}
               isSelected={selectedDevice?.id_device === device.id_device}
               onClick={() => setSelectedDevice(device)}
             />
@@ -141,6 +156,7 @@ export function TrackingMap({
         {selectedDevice && !isDrawingGeofence ? (
           <DeviceMapPopup
             device={selectedDevice}
+            geofenceState={selectedDeviceState}
             onClose={() => setSelectedDevice(undefined)}
           />
         ) : null}
@@ -148,6 +164,7 @@ export function TrackingMap({
 
       <MapDeviceBottomSheet
         device={isDrawingGeofence ? undefined : selectedDevice}
+        geofenceState={selectedDeviceState}
         onClose={() => setSelectedDevice(undefined)}
       />
     </div>

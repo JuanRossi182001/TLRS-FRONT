@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '../../../shared/components';
 import { GeofenceList } from '../components/GeofenceList';
+import { GeofenceStatesList } from '../components/GeofenceStatesList';
 import { useMyGeofences } from '../hooks/useMyGeofences';
 
 export function GeofencesPage() {
@@ -40,6 +41,18 @@ export function GeofencesPage() {
       {!isLoading && !isError && geofences.length > 0 ? (
         <GeofenceList geofences={geofences} />
       ) : null}
+
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight text-brand-text">
+            Estados actuales
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-brand-muted">
+            Estado de cada asset respecto de sus geocercas asignadas.
+          </p>
+        </div>
+        <GeofenceStatesList />
+      </div>
     </section>
   );
 }

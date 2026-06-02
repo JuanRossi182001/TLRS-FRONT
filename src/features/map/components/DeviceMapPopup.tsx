@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom';
 import { Popup } from 'react-map-gl/maplibre';
 import { StatusBadge } from '../../../shared/components';
+import { GeofenceStatusBadge } from '../../geofences/components/GeofenceStatusBadge';
+import type { GeoFenceAssetState } from '../../geofences/types/geofenceState.types';
 import type { DeviceLatestLocation } from '../types/map.types';
 
 type DeviceMapPopupProps = {
   device: DeviceLatestLocation;
+  geofenceState?: GeoFenceAssetState;
   onClose: () => void;
 };
 
@@ -23,7 +26,7 @@ function formatCoordinate(value: number) {
   return value.toFixed(5);
 }
 
-export function DeviceMapPopup({ device, onClose }: DeviceMapPopupProps) {
+export function DeviceMapPopup({ device, geofenceState, onClose }: DeviceMapPopupProps) {
   return (
     <Popup
       latitude={device.latitude}
@@ -48,6 +51,20 @@ export function DeviceMapPopup({ device, onClose }: DeviceMapPopupProps) {
         </div>
 
         <dl className="grid gap-2 text-xs">
+          {geofenceState ? (
+            <div className="rounded-2xl bg-brand-surfaceSoft p-2">
+              <dt className="font-medium text-brand-muted">Estado geocerca</dt>
+              <dd className="mt-2 flex flex-wrap gap-2 text-brand-text">
+                <GeofenceStatusBadge current_status={geofenceState.current_status} />
+                <span>{geofenceState.geofence_name}</span>
+              </dd>
+              <dd className="mt-1 text-brand-muted">
+                Distancia: {geofenceState.last_distance_to_boundary_meters !== null
+                  ? `${geofenceState.last_distance_to_boundary_meters.toFixed(1)} m`
+                  : 'Sin datos'}
+              </dd>
+            </div>
+          ) : null}
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-2xl bg-brand-surfaceSoft p-2">
               <dt className="font-medium text-brand-muted">Tipo</dt>

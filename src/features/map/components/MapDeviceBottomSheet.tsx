@@ -1,10 +1,13 @@
 import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../../../shared/components';
+import { GeofenceStatusBadge } from '../../geofences/components/GeofenceStatusBadge';
+import type { GeoFenceAssetState } from '../../geofences/types/geofenceState.types';
 import type { DeviceLatestLocation } from '../types/map.types';
 
 type MapDeviceBottomSheetProps = {
   device?: DeviceLatestLocation;
+  geofenceState?: GeoFenceAssetState;
   onClose: () => void;
 };
 
@@ -15,7 +18,11 @@ function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
-export function MapDeviceBottomSheet({ device, onClose }: MapDeviceBottomSheetProps) {
+export function MapDeviceBottomSheet({
+  device,
+  geofenceState,
+  onClose,
+}: MapDeviceBottomSheetProps) {
   if (!device) {
     return null;
   }
@@ -45,7 +52,26 @@ export function MapDeviceBottomSheet({ device, onClose }: MapDeviceBottomSheetPr
             tone={device.active ? 'success' : 'default'}
           />
           <StatusBadge label={device.type} />
+          {geofenceState ? (
+            <GeofenceStatusBadge current_status={geofenceState.current_status} />
+          ) : null}
         </div>
+
+        {geofenceState ? (
+          <div className="mt-4 rounded-2xl bg-brand-surfaceSoft p-3 text-sm">
+            <p className="font-semibold text-brand-text">{geofenceState.geofence_name}</p>
+            <p className="mt-1 text-brand-muted">
+              Distancia: {geofenceState.last_distance_to_boundary_meters !== null
+                ? `${geofenceState.last_distance_to_boundary_meters.toFixed(1)} m`
+                : 'Sin datos'}
+            </p>
+            <p className="mt-1 text-brand-muted">
+              Accuracy: {geofenceState.last_accuracy !== null
+                ? `${geofenceState.last_accuracy.toFixed(1)} m`
+                : 'Sin datos'}
+            </p>
+          </div>
+        ) : null}
 
         <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
           <div className="rounded-2xl bg-brand-surfaceSoft p-3">

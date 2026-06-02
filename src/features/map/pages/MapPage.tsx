@@ -3,6 +3,7 @@ import { ErrorState, LoadingState, PageHeader, StatusBadge } from '../../../shar
 import { CreateGeofencePanel } from '../../geofences/components/CreateGeofencePanel';
 import { GeofenceDrawingControls } from '../../geofences/components/GeofenceDrawingControls';
 import { useGeofenceAssignableDevices } from '../../geofences/hooks/useGeofenceAssignableDevices';
+import { useGeofenceStates } from '../../geofences/hooks/useGeofenceStates';
 import { useMyGeofences } from '../../geofences/hooks/useMyGeofences';
 import type { Position } from '../../geofences/types/geofence.types';
 import { TrackingMap } from '../components/TrackingMap';
@@ -11,6 +12,7 @@ import { useMyDevicesLatestLocations } from '../hooks/useMyDevicesLatestLocation
 export function MapPage() {
   const { data: devices = [], isError, isLoading, error } = useMyDevicesLatestLocations();
   const { data: geofences = [], isError: isGeofencesError, error: geofencesError } = useMyGeofences();
+  const { data: geofenceStates = [] } = useGeofenceStates();
   const { data: assignableDevices = [] } = useGeofenceAssignableDevices();
   const [isDrawingGeofence, setIsDrawingGeofence] = useState(false);
   const [draftPoints, setDraftPoints] = useState<Position[]>([]);
@@ -93,6 +95,7 @@ export function MapPage() {
           devices={devices}
           draftPoints={draftPoints}
           geofences={geofences}
+          geofenceStates={geofenceStates}
           isDrawingGeofence={isDrawingGeofence}
           onAddDraftPoint={(point) => setDraftPoints((currentPoints) => [...currentPoints, point])}
           onMoveDraftPoint={(index, point) =>
