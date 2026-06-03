@@ -1,11 +1,25 @@
-import { EmptyState, ErrorState, LoadingState } from '../../../shared/components';
+import { Card, EmptyState, ErrorState, LoadingState } from '../../../shared/components';
+import { GeofenceStatusBadge } from '../../geofences/components/GeofenceStatusBadge';
+import type { GeoFenceStatus } from '../../geofences/types/geofenceState.types';
 import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminSectionCard } from '../components/AdminSectionCard';
 import { AdminStatCard } from '../components/AdminStatCard';
+import { useAdminDevices } from '../hooks/useAdminDevices';
 import { useAdminStats } from '../hooks/useAdminStats';
+
+const geofenceStatuses: GeoFenceStatus[] = ['SAFE', 'NEAR_LIMIT', 'OUTSIDE', 'GPS_UNCERTAIN'];
 
 export function AdminDashboardPage() {
   const { data: stats, isLoading, isError, error } = useAdminStats();
+  const { data: devices = [] } = useAdminDevices();
+  const geofenceStatusCounts = devices.reduce<Record<string, number>>((counts, device) => {
+    const status = geofenceStatuses.includes(device.status) ? device.status : 'UNKNOWN';
+
+    counts[status] = (counts[status] ?? 0) + 1;
+
+    return counts;
+  }, {});
+  const hasUnknownStatus = Boolean(geofenceStatusCounts.UNKNOWN);
 
   if (isLoading) {
     return <LoadingState message="Cargando metricas de administracion..." />;
@@ -44,6 +58,23 @@ export function AdminDashboardPage() {
         <AdminStatCard label="Offline" value={stats.devices_data.offline_devices} />
         <AdminStatCard label="Clientes" value={stats.clients_data} />
         <AdminStatCard label="Usuarios" value={stats.users_data} />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        {geofenceStatuses.map((status) => (
+          <Card key={status} className="space-y-3">
+            <GeofenceStatusBadge current_status={status} />
+            <p className="text-3xl font-semibold text-brand-text">{geofenceStatusCounts[status] ?? 0}</p>
+            <p className="text-sm text-brand-muted">dispositivos</p>
+          </Card>
+        ))}
+        {hasUnknownStatus ? (
+          <Card className="space-y-3">
+            <GeofenceStatusBadge current_status={null} />
+            <p className="text-3xl font-semibold text-brand-text">{geofenceStatusCounts.UNKNOWN}</p>
+            <p className="text-sm text-brand-muted">dispositivos</p>
+          </Card>
+        ) : null}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">

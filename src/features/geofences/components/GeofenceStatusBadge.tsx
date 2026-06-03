@@ -2,7 +2,7 @@ import { getGeofenceStatusUi } from '../utils/geofenceStatusUi';
 import type { GeoFenceStatus } from '../types/geofenceState.types';
 
 type GeofenceStatusBadgeProps = {
-  current_status: GeoFenceStatus;
+  current_status: GeoFenceStatus | string | null | undefined;
 };
 
 export function GeofenceStatusBadge({ current_status }: GeofenceStatusBadgeProps) {

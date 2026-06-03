@@ -1,4 +1,5 @@
 import { Button, EmptyState, ErrorState, LoadingState, StatusBadge } from '../../../shared/components';
+import { GeofenceStatusBadge } from '../../geofences/components/GeofenceStatusBadge';
 import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminTablePlaceholder } from '../components/AdminTablePlaceholder';
 import { useAdminDevices, useDeactivateAdminDevice } from '../hooks/useAdminDevices';
@@ -54,6 +55,11 @@ export function AdminDevicesPage() {
             ),
           },
           { key: 'state', label: 'Estado' },
+          {
+            key: 'status',
+            label: 'Geocerca',
+            render: (device) => <GeofenceStatusBadge current_status={device.status} />,
+          },
         ]}
         renderActions={(device) => (
           <div className="flex flex-wrap gap-2">

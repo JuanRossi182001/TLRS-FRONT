@@ -7,6 +7,13 @@ type GeofenceStatusUi = {
   markerClassName: string;
 };
 
+const fallbackStatusUi: GeofenceStatusUi = {
+  label: 'Sin estado',
+  description: 'No hay un estado de geocerca disponible',
+  badgeClassName: 'bg-slate-100 text-slate-700 ring-slate-200',
+  markerClassName: 'bg-slate-500 ring-slate-100',
+};
+
 const statusUi: Record<GeoFenceStatus, GeofenceStatusUi> = {
   SAFE: {
     label: 'Seguro',
@@ -34,6 +41,6 @@ const statusUi: Record<GeoFenceStatus, GeofenceStatusUi> = {
   },
 };
 
-export function getGeofenceStatusUi(status: GeoFenceStatus) {
-  return statusUi[status];
+export function getGeofenceStatusUi(status: GeoFenceStatus | string | null | undefined) {
+  return statusUi[status as GeoFenceStatus] ?? fallbackStatusUi;
 }

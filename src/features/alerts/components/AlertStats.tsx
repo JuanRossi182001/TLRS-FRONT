@@ -16,7 +16,7 @@ export function AlertStats({ events }: AlertStatsProps) {
   const enteredReturned = countByType(events, 'ENTERED') + countByType(events, 'RETURNED');
 
   const stats = [
-    { label: 'Total eventos', value: events.length, className: 'bg-brand-primary text-white' },
+    { label: 'Total eventos', value: events.length, className: 'bg-brand-primary text-black' },
     { label: 'Salidas', value: exited, className: 'bg-red-50 text-brand-danger' },
     { label: 'Cerca del limite', value: nearLimit, className: 'bg-amber-50 text-brand-accentDark' },
     { label: 'GPS incierto', value: gpsUncertain, className: 'bg-yellow-50 text-brand-accentDark' },

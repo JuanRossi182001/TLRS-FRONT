@@ -1,3 +1,5 @@
+import type { GeoFenceStatus } from '../../geofences/types/geofenceState.types';
+
 export type AdminStats = {
   devices_data: {
     all_devices: number;
@@ -18,6 +20,7 @@ export type AdminDeviceListItem = {
   asset_name: string | null;
   active: boolean;
   state: string;
+  status: GeoFenceStatus;
 };
 
 export type AdminClient = {

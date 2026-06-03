@@ -21,6 +21,7 @@ export const adminDevicesMock: AdminDeviceListItem[] = [
     asset_name: 'CARAVANA-0237',
     active: true,
     state: 'ON',
+    status: 'SAFE',
   },
   {
     id_device: 1002,
@@ -30,6 +31,7 @@ export const adminDevicesMock: AdminDeviceListItem[] = [
     asset_name: 'CARAVANA-0412',
     active: true,
     state: 'OFF',
+    status: 'NEAR_LIMIT',
   },
   {
     id_device: 1003,
@@ -39,6 +41,7 @@ export const adminDevicesMock: AdminDeviceListItem[] = [
     asset_name: 'CAMIONETA-3010',
     active: false,
     state: 'UNKNOWN',
+    status: 'GPS_UNCERTAIN',
   },
 ];
 
