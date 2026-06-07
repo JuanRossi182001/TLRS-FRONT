@@ -1,4 +1,5 @@
 import { Card } from '../../../shared/components';
+import { formatArgentinaDateTime } from '../../../shared/utils/dateTime';
 import type { FenceEventType, GeoFenceEventRead } from '../types/alert.types';
 import { AlertEventTypeBadge } from './AlertEventTypeBadge';
 
@@ -14,13 +15,6 @@ const titleByEventType: Record<FenceEventType, (event: GeoFenceEventRead) => str
   ENTERED: (event) => `${event.device_name} entro a ${event.geofence_name}`,
   RETURNED: (event) => `${event.device_name} volvio a ${event.geofence_name}`,
 };
-
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat('es-AR', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  }).format(new Date(value));
-}
 
 function getEventTitle(event: GeoFenceEventRead) {
   return titleByEventType[event.event_type]?.(event)
@@ -41,7 +35,7 @@ export function AlertEventCard({ event }: AlertEventCardProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <AlertEventTypeBadge event_type={event.event_type} />
         <time className="text-sm font-medium text-brand-muted" dateTime={event.created_at}>
-          {formatDateTime(event.created_at)}
+          {formatArgentinaDateTime(event.created_at)}
         </time>
       </div>
 

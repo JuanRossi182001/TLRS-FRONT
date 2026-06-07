@@ -1,19 +1,9 @@
 import { Card, EmptyState, ErrorState, LoadingState } from '../../../shared/components';
+import { formatArgentinaDateTime, getUtcTimestampTime } from '../../../shared/utils/dateTime';
 import { useGeofenceStates } from '../hooks/useGeofenceStates';
 import type { GeoFenceAssetState } from '../types/geofenceState.types';
 import { getGeofenceStatusUi } from '../utils/geofenceStatusUi';
 import { GeofenceStatusBadge } from './GeofenceStatusBadge';
-
-function formatDateTime(value: string | null) {
-  if (!value) {
-    return 'Sin datos';
-  }
-
-  return new Intl.DateTimeFormat('es-AR', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  }).format(new Date(value));
-}
 
 function formatMeters(value: number | null) {
   if (value === null) {
@@ -26,8 +16,7 @@ function formatMeters(value: number | null) {
 function sortStates(states: GeoFenceAssetState[]) {
   return [...states].sort(
     (a, b) =>
-      new Date(b.last_evaluated_at ?? 0).getTime() -
-      new Date(a.last_evaluated_at ?? 0).getTime(),
+      getUtcTimestampTime(b.last_evaluated_at) - getUtcTimestampTime(a.last_evaluated_at),
   );
 }
 
@@ -81,7 +70,7 @@ export function GeofenceStatesList() {
                 className="text-sm font-medium text-brand-muted"
                 dateTime={state.last_evaluated_at ?? undefined}
               >
-                {formatDateTime(state.last_evaluated_at)}
+                {formatArgentinaDateTime(state.last_evaluated_at)}
               </time>
             </div>
 

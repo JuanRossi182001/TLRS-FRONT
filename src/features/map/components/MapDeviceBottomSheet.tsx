@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../../../shared/components';
+import { formatArgentinaDateTime } from '../../../shared/utils/dateTime';
 import { GeofenceStatusBadge } from '../../geofences/components/GeofenceStatusBadge';
 import type { GeoFenceAssetState } from '../../geofences/types/geofenceState.types';
 import type { DeviceLatestLocation } from '../types/map.types';
@@ -10,13 +11,6 @@ type MapDeviceBottomSheetProps = {
   geofenceState?: GeoFenceAssetState;
   onClose: () => void;
 };
-
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat('es-AR', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  }).format(new Date(value));
-}
 
 export function MapDeviceBottomSheet({
   device,
@@ -90,7 +84,7 @@ export function MapDeviceBottomSheet({
           </div>
           <div className="rounded-2xl bg-brand-surfaceSoft p-3">
             <dt className="font-medium text-brand-muted">Received at</dt>
-            <dd className="mt-1 text-brand-text">{formatDateTime(device.received_at)}</dd>
+            <dd className="mt-1 text-brand-text">{formatArgentinaDateTime(device.received_at)}</dd>
           </div>
         </dl>
 

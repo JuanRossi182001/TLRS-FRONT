@@ -1,4 +1,5 @@
 import { Button, ErrorState, LoadingState, PageHeader, StatusBadge } from '../../../shared/components';
+import { getUtcTimestampTime } from '../../../shared/utils/dateTime';
 import { AlertEmptyState } from '../components/AlertEmptyState';
 import { AlertEventList } from '../components/AlertEventList';
 import { AlertStats } from '../components/AlertStats';
@@ -15,7 +16,7 @@ export function AlertsPage() {
   } = useMyGeofenceEvents({ skip: 0, limit: 100 });
 
   const sortedEvents = [...events].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    (a, b) => getUtcTimestampTime(b.created_at) - getUtcTimestampTime(a.created_at),
   );
 
   return (

@@ -32,7 +32,7 @@ export function MapPage() {
   }
 
   return (
-    <section className="flex min-h-[calc(100dvh-9rem)] flex-1 flex-col gap-6 lg:min-h-[calc(100dvh-7rem)]">
+    <section className="flex min-h-0 flex-1 flex-col gap-4 lg:gap-5">
       <PageHeader
         title="Mapa en tiempo real"
         description={

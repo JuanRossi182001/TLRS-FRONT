@@ -57,8 +57,12 @@ export function TrackingMap({
   onRemoveDraftPoint,
 }: TrackingMapProps) {
   const mapRef = useRef<MapRef>(null);
+  const hasFitInitialLocationsRef = useRef(false);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState<DeviceLatestLocation | undefined>();
+  const [selectedDeviceId, setSelectedDeviceId] = useState<number | undefined>();
+  const selectedDevice = selectedDeviceId
+    ? devices.find((device) => device.id_device === selectedDeviceId)
+    : undefined;
   const selectedDeviceState = selectedDevice
     ? geofenceStates.find(
         (state) =>
@@ -68,7 +72,7 @@ export function TrackingMap({
     : undefined;
 
   useEffect(() => {
-    if (!isMapLoaded || devices.length === 0) {
+    if (!isMapLoaded || devices.length === 0 || hasFitInitialLocationsRef.current) {
       return;
     }
 
@@ -80,6 +84,7 @@ export function TrackingMap({
 
     if (devices.length === 1) {
       const [device] = devices;
+      hasFitInitialLocationsRef.current = true;
       map.flyTo({
         center: [device.longitude, device.latitude],
         zoom: 13,
@@ -97,6 +102,7 @@ export function TrackingMap({
       ),
     );
 
+    hasFitInitialLocationsRef.current = true;
     map.fitBounds(bounds, {
       padding: { top: 80, bottom: 120, left: 60, right: 60 },
       duration: 700,
@@ -105,7 +111,7 @@ export function TrackingMap({
   }, [devices, isMapLoaded]);
 
   return (
-    <div className="relative h-[calc(100dvh-15rem)] min-h-[460px] overflow-hidden rounded-[2rem] border border-brand-border/70 bg-brand-surface shadow-xl shadow-brand-primary/10 lg:h-[calc(100dvh-10rem)] lg:min-h-[520px]">
+    <div className="relative min-h-0 flex-1 overflow-hidden rounded-[2rem] border border-brand-border/70 bg-brand-surface shadow-xl shadow-brand-primary/10">
       <Map
         ref={mapRef}
         mapLib={maplibregl}
@@ -120,7 +126,7 @@ export function TrackingMap({
             return;
           }
 
-          setSelectedDevice(undefined);
+          setSelectedDeviceId(undefined);
         }}
         onLoad={() => setIsMapLoaded(true)}
       >
@@ -135,7 +141,7 @@ export function TrackingMap({
 
         {devices.map((device) => (
           <Marker
-            key={device.id_location}
+            key={device.id_device}
             latitude={device.latitude}
             longitude={device.longitude}
             anchor="bottom"
@@ -147,8 +153,8 @@ export function TrackingMap({
                   state.device_id === device.id_device ||
                   (device.asset_id !== null && state.asset_id === device.asset_id),
               )}
-              isSelected={selectedDevice?.id_device === device.id_device}
-              onClick={() => setSelectedDevice(device)}
+              isSelected={selectedDeviceId === device.id_device}
+              onClick={() => setSelectedDeviceId(device.id_device)}
             />
           </Marker>
         ))}
@@ -157,7 +163,7 @@ export function TrackingMap({
           <DeviceMapPopup
             device={selectedDevice}
             geofenceState={selectedDeviceState}
-            onClose={() => setSelectedDevice(undefined)}
+            onClose={() => setSelectedDeviceId(undefined)}
           />
         ) : null}
       </Map>
@@ -165,7 +171,7 @@ export function TrackingMap({
       <MapDeviceBottomSheet
         device={isDrawingGeofence ? undefined : selectedDevice}
         geofenceState={selectedDeviceState}
-        onClose={() => setSelectedDevice(undefined)}
+        onClose={() => setSelectedDeviceId(undefined)}
       />
     </div>
   );

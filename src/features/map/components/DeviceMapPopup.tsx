@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Popup } from 'react-map-gl/maplibre';
 import { StatusBadge } from '../../../shared/components';
+import { formatArgentinaDateTime } from '../../../shared/utils/dateTime';
 import { GeofenceStatusBadge } from '../../geofences/components/GeofenceStatusBadge';
 import type { GeoFenceAssetState } from '../../geofences/types/geofenceState.types';
 import type { DeviceLatestLocation } from '../types/map.types';
@@ -10,17 +11,6 @@ type DeviceMapPopupProps = {
   geofenceState?: GeoFenceAssetState;
   onClose: () => void;
 };
-
-function formatDateTime(value: string | null) {
-  if (!value) {
-    return 'Sin datos';
-  }
-
-  return new Intl.DateTimeFormat('es-AR', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  }).format(new Date(value));
-}
 
 function formatCoordinate(value: number) {
   return value.toFixed(5);
@@ -102,12 +92,12 @@ export function DeviceMapPopup({ device, geofenceState, onClose }: DeviceMapPopu
           <div className="rounded-2xl bg-brand-surfaceSoft p-2">
             <dt className="font-medium text-brand-muted">Device timestamp</dt>
             <dd className="mt-0.5 text-brand-text">
-              {formatDateTime(device.device_timestamp)}
+              {formatArgentinaDateTime(device.device_timestamp)}
             </dd>
           </div>
           <div className="rounded-2xl bg-brand-surfaceSoft p-2">
             <dt className="font-medium text-brand-muted">Received at</dt>
-            <dd className="mt-0.5 text-brand-text">{formatDateTime(device.received_at)}</dd>
+            <dd className="mt-0.5 text-brand-text">{formatArgentinaDateTime(device.received_at)}</dd>
           </div>
         </dl>
 
