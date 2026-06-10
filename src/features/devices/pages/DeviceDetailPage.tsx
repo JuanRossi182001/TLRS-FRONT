@@ -6,7 +6,8 @@ import { useMyDevices } from '../hooks/useMyDevices';
 export function DeviceDetailPage() {
   const { deviceId } = useParams<{ deviceId: string }>();
   const idDevice = Number(deviceId);
-  const { data: devices = [], isError, isLoading, error } = useMyDevices();
+  const { data, isError, isLoading, error } = useMyDevices();
+  const devices = data?.items ?? [];
   const device = devices.find((item) => item.idDevice === idDevice);
 
   if (isLoading) {

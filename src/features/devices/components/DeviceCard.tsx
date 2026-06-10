@@ -9,14 +9,14 @@ type DeviceCardProps = {
 
 export function DeviceCard({ device }: DeviceCardProps) {
   return (
-    <Card className="space-y-5 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-primary/10">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold tracking-tight text-brand-text">{device.name}</h2>
+    <Card className="space-y-3 p-4 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-primary/10 xl:space-y-2 xl:p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <h2 className="truncate text-base font-semibold tracking-tight text-brand-text sm:text-lg xl:text-base">{device.name}</h2>
             <DeviceStateBadge state={device.state} />
           </div>
-          <p className="mt-1 text-sm font-medium text-brand-muted">{device.serial}</p>
+          <p className="mt-0.5 truncate text-xs font-medium text-brand-muted">{device.serial}</p>
         </div>
 
         <StatusBadge
@@ -25,33 +25,29 @@ export function DeviceCard({ device }: DeviceCardProps) {
         />
       </div>
 
-      <dl className="grid gap-3 text-sm sm:grid-cols-2">
-        <div className="rounded-2xl bg-brand-surfaceSoft p-3">
+      <dl className="grid grid-cols-2 gap-2 text-xs sm:text-sm xl:text-xs">
+        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
           <dt className="font-medium text-brand-muted">Tipo</dt>
-          <dd className="mt-1 text-brand-text">{device.type}</dd>
+          <dd className="mt-0.5 truncate text-brand-text">{device.type}</dd>
         </div>
-        <div className="rounded-2xl bg-brand-surfaceSoft p-3">
+        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
           <dt className="font-medium text-brand-muted">Protocolo</dt>
-          <dd className="mt-1 uppercase text-brand-text">{device.communicationProtocol}</dd>
+          <dd className="mt-0.5 truncate uppercase text-brand-text">{device.communicationProtocol}</dd>
         </div>
-        <div className="rounded-2xl bg-brand-surfaceSoft p-3">
+        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
           <dt className="font-medium text-brand-muted">Client ID</dt>
-          <dd className="mt-1 text-brand-text">{device.clientId ?? 'Sin client'}</dd>
+          <dd className="mt-0.5 text-brand-text">{device.clientId ?? 'Sin client'}</dd>
         </div>
-        <div className="rounded-2xl bg-brand-surfaceSoft p-3">
+        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
           <dt className="font-medium text-brand-muted">Asset ID</dt>
-          <dd className="mt-1 text-brand-text">{device.assetId ?? 'Sin asset'}</dd>
-        </div>
-        <div className="rounded-2xl bg-brand-surfaceSoft p-3 sm:col-span-2">
-          <dt className="font-medium text-brand-muted">Ubicacion</dt>
-          <dd className="mt-1 text-brand-muted">Ubicacion no cargada en este listado</dd>
+          <dd className="mt-0.5 text-brand-text">{device.assetId ?? 'Sin asset'}</dd>
         </div>
       </dl>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-1">
         <Link
           to={`/app/devices/${device.idDevice}`}
-          className="inline-flex items-center justify-center rounded-full bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primaryDark hover:shadow-md"
+          className="inline-flex w-full items-center justify-center rounded-full bg-brand-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primaryDark hover:shadow-md sm:w-auto xl:py-1.5 xl:text-xs"
         >
           Ver detalle
         </Link>

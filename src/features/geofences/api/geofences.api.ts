@@ -1,9 +1,11 @@
 import { apiFetch } from '../../../shared/api/httpClient';
 import type {
+  GeoFenceActivationUpdate,
   GeoFenceAssignmentCreate,
   GeoFenceAssignmentRead,
   GeoFenceCreate,
   GeoFenceRead,
+  GeoFenceUpdate,
 } from '../types/geofence.types';
 
 export function getMyGeofences(params: { skip?: number; limit?: number } = {}) {
@@ -20,6 +22,27 @@ export function createGeofence(payload: GeoFenceCreate) {
   });
 }
 
+export function updateGeofence(geofence_id: number, payload: GeoFenceUpdate) {
+  return apiFetch<GeoFenceRead>(`/geofences/${geofence_id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function setGeofenceActivation(
+  geofence_id: number,
+  payload: GeoFenceActivationUpdate,
+) {
+  return apiFetch<GeoFenceRead>(`/geofences/${geofence_id}/activation`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function getGeofenceAssignments(geofence_id: number) {
+  return apiFetch<GeoFenceAssignmentRead[]>(`/geofences/${geofence_id}/assignments`);
+}
+
 export function assignAssetsToGeofence(
   geofence_id: number,
   payload: GeoFenceAssignmentCreate,
@@ -28,4 +51,13 @@ export function assignAssetsToGeofence(
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+export function deactivateGeofenceAssignment(assignment_id: number) {
+  return apiFetch<GeoFenceAssignmentRead>(
+    `/geofences/assignments/${assignment_id}/deactivate`,
+    {
+      method: 'PATCH',
+    },
+  );
 }

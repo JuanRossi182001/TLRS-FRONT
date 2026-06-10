@@ -5,6 +5,7 @@ import type { DeviceApiResponse } from '../../devices/types/device.types';
 import { useAssignAssetsToGeofence } from '../hooks/useAssignAssetsToGeofence';
 import { useCreateGeofence } from '../hooks/useCreateGeofence';
 import type { GeoFenceCreate, Position } from '../types/geofence.types';
+import { buildShapeFromDraftPoints } from '../utils/geofenceShape';
 
 type CreateGeofencePanelProps = {
   draft_points: Position[];
@@ -34,16 +35,11 @@ function buildGeofencePayload(
   active: boolean,
   draft_points: Position[],
 ): GeoFenceCreate {
-  const closed_ring = [...draft_points, draft_points[0]];
-
   return {
     name: name.trim(),
     description: description.trim() ? description.trim() : null,
     active,
-    shape: {
-      type: 'MultiPolygon',
-      coordinates: [[closed_ring]],
-    },
+    shape: buildShapeFromDraftPoints(draft_points),
   };
 }
 

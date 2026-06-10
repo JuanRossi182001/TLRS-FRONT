@@ -1,10 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../../../shared/api/httpClient';
-import type { DeviceApiResponse } from '../../devices/types/device.types';
+import type { DeviceApiResponse, MyDevicesApiResponse } from '../../devices/types/device.types';
 
-export function useGeofenceAssignableDevices() {
+export function useGeofenceAssignableDevices(enabled = true) {
   return useQuery<DeviceApiResponse[]>({
     queryKey: ['geofences', 'assignable-devices'],
-    queryFn: () => apiFetch<DeviceApiResponse[]>('/devices/my-devices'),
+    queryFn: async () => {
+      const response = await apiFetch<MyDevicesApiResponse>('/devices/my-devices?skip=0&limit=100');
+
+      return response.items;
+    },
+    enabled,
   });
 }

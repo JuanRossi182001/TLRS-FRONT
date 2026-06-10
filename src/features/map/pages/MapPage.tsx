@@ -1,29 +1,73 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader, StatusBadge } from '../../../shared/components';
 import { CreateGeofencePanel } from '../../geofences/components/CreateGeofencePanel';
+import { EditGeofencePanel } from '../../geofences/components/EditGeofencePanel';
 import { GeofenceDrawingControls } from '../../geofences/components/GeofenceDrawingControls';
 import { useGeofenceAssignableDevices } from '../../geofences/hooks/useGeofenceAssignableDevices';
 import { useGeofenceStates } from '../../geofences/hooks/useGeofenceStates';
 import { useMyGeofences } from '../../geofences/hooks/useMyGeofences';
 import type { Position } from '../../geofences/types/geofence.types';
+import { getDraftPointsFromShape } from '../../geofences/utils/geofenceShape';
 import { TrackingMap } from '../components/TrackingMap';
 import { useMyDevicesLatestLocations } from '../hooks/useMyDevicesLatestLocations';
 
 export function MapPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: devices = [], isError, isLoading, error } = useMyDevicesLatestLocations();
-  const { data: geofences = [], isError: isGeofencesError, error: geofencesError } = useMyGeofences();
+  const {
+    data: geofences = [],
+    isError: isGeofencesError,
+    isLoading: isGeofencesLoading,
+    error: geofencesError,
+  } = useMyGeofences();
   const { data: geofenceStates = [] } = useGeofenceStates();
   const { data: assignableDevices = [] } = useGeofenceAssignableDevices();
+  const previousEditGeofenceIdRef = useRef<number | null>(null);
   const [isDrawingGeofence, setIsDrawingGeofence] = useState(false);
   const [draftPoints, setDraftPoints] = useState<Position[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const editGeofenceId = Number(searchParams.get('editGeofence')) || null;
+  const editingGeofence = editGeofenceId
+    ? geofences.find((geofence) => geofence.id_geofence === editGeofenceId)
+    : undefined;
   const totalDevices = devices.length;
   const activeDevices = devices.filter((device) => device.active).length;
   const inactiveDevices = devices.filter((device) => !device.active).length;
 
+  useEffect(() => {
+    const previousEditGeofenceId = previousEditGeofenceIdRef.current;
+    previousEditGeofenceIdRef.current = editGeofenceId;
+
+    if (previousEditGeofenceId && !editGeofenceId) {
+      setIsDrawingGeofence(false);
+      setDraftPoints([]);
+      setSuccessMessage(null);
+    }
+  }, [editGeofenceId]);
+
+  useEffect(() => {
+    if (!editingGeofence) {
+      return;
+    }
+
+    setIsDrawingGeofence(true);
+    setDraftPoints(getDraftPointsFromShape(editingGeofence.shape));
+    setSuccessMessage(null);
+  }, [editingGeofence?.id_geofence]);
+
+  function clearEditGeofenceParam() {
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+      nextParams.delete('editGeofence');
+      return nextParams;
+    });
+  }
+
   function handleCancelDrawing() {
     setIsDrawingGeofence(false);
     setDraftPoints([]);
+    clearEditGeofenceParam();
   }
 
   function handleCreatedGeofence() {
@@ -31,12 +75,19 @@ export function MapPage() {
     handleCancelDrawing();
   }
 
+  function handleUpdatedGeofence() {
+    setSuccessMessage('Geocerca actualizada correctamente.');
+    handleCancelDrawing();
+  }
+
   return (
     <section className="flex min-h-0 flex-1 flex-col gap-4 lg:gap-5">
       <PageHeader
-        title="Mapa en tiempo real"
+        title={editingGeofence ? 'Editar geocerca' : 'Mapa en tiempo real'}
         description={
-          isDrawingGeofence
+          editingGeofence
+            ? 'Redibuja la geocerca desde el mapa y guarda los cambios.'
+            : isDrawingGeofence
             ? 'Hace click en el mapa para agregar vertices de la geocerca.'
             : 'Ultimas ubicaciones reportadas por tus dispositivos GPS.'
         }
@@ -52,6 +103,7 @@ export function MapPage() {
               on_clear={() => setDraftPoints([])}
               on_start={() => {
                 setSuccessMessage(null);
+                clearEditGeofenceParam();
                 setIsDrawingGeofence(true);
               }}
               points_count={draftPoints.length}
@@ -82,7 +134,23 @@ export function MapPage() {
         </div>
       ) : null}
 
-      {isDrawingGeofence ? (
+      {editGeofenceId && !editingGeofence && !isGeofencesLoading && !isGeofencesError ? (
+        <ErrorState
+          title="No pudimos encontrar la geocerca"
+          message="Revisa que la geocerca exista y vuelve a intentarlo desde Geocercas."
+        />
+      ) : null}
+
+      {isDrawingGeofence && editingGeofence ? (
+        <EditGeofencePanel
+          draft_points={draftPoints}
+          geofence={editingGeofence}
+          on_cancel={handleCancelDrawing}
+          on_updated={handleUpdatedGeofence}
+        />
+      ) : null}
+
+      {isDrawingGeofence && !editingGeofence ? (
         <CreateGeofencePanel
           devices={assignableDevices}
           draft_points={draftPoints}

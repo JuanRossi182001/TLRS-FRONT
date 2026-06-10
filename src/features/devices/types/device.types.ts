@@ -14,6 +14,20 @@ export type DeviceApiResponse = {
   active: boolean;
 };
 
+export type MyDevicesApiResponse = {
+  total: number;
+  skip: number;
+  limit: number;
+  items: DeviceApiResponse[];
+};
+
+export type MyDevicesResponse = {
+  total: number;
+  skip: number;
+  limit: number;
+  items: Device[];
+};
+
 export type Client = {
   idClient: number;
   name: string;
