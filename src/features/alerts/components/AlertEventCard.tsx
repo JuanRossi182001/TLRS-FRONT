@@ -31,45 +31,47 @@ function getMetadata(event: GeoFenceEventRead) {
 
 export function AlertEventCard({ event }: AlertEventCardProps) {
   return (
-    <Card className="space-y-5 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-primary/10">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <AlertEventTypeBadge event_type={event.event_type} />
-        <time className="text-sm font-medium text-brand-muted" dateTime={event.created_at}>
+    <Card className="flex h-full flex-col space-y-3 p-4 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-primary/10 xl:space-y-2 xl:p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <AlertEventTypeBadge event_type={event.event_type} />
+        </div>
+        <time className="shrink-0 text-[11px] font-medium text-brand-muted" dateTime={event.created_at}>
           {formatArgentinaDateTime(event.created_at)}
         </time>
       </div>
 
-      <div>
-        <h2 className="text-xl font-semibold leading-tight text-brand-text">
+      <div className="min-w-0">
+        <h2 className="text-base font-semibold leading-tight text-brand-text xl:text-[15px]">
           {getEventTitle(event)}
         </h2>
-        <p className="mt-2 text-sm leading-6 text-brand-muted">{getMetadata(event)}</p>
+        <p className="mt-1 text-xs leading-4 text-brand-muted">{getMetadata(event)}</p>
       </div>
 
-      <div className="grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-3">
-        <div className="rounded-2xl bg-brand-surfaceSoft p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Geocerca</p>
+      <div className="grid grid-cols-2 gap-2 text-xs xl:mt-auto">
+        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Geocerca</p>
           <p className="mt-1 font-semibold text-brand-text">#{event.fence_id}</p>
         </div>
-        <div className="rounded-2xl bg-brand-surfaceSoft p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Dispositivo</p>
+        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Dispositivo</p>
           <p className="mt-1 font-semibold text-brand-text">#{event.device_id}</p>
         </div>
-        <div className="rounded-2xl bg-brand-surfaceSoft p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Ubicacion</p>
+        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Ubicacion</p>
           <p className="mt-1 font-semibold text-brand-text">#{event.location_id}</p>
         </div>
         {event.distance_to_boundary_meters !== null ? (
-          <div className="rounded-2xl bg-blue-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Distancia</p>
+          <div className="rounded-xl bg-blue-50 p-2.5 xl:p-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Distancia</p>
             <p className="mt-1 font-semibold text-brand-text">
               {event.distance_to_boundary_meters.toFixed(1)} m del limite
             </p>
           </div>
         ) : null}
         {event.accuracy !== null ? (
-          <div className="rounded-2xl bg-amber-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Precision GPS</p>
+          <div className="rounded-xl bg-amber-50 p-2.5 xl:p-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Precision GPS</p>
             <p className="mt-1 font-semibold text-brand-text">{event.accuracy.toFixed(1)} m</p>
           </div>
         ) : null}

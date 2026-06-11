@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Card, EmptyState, ErrorState, LoadingState, PageHeader } from '../../../shared/components';
 import { DeviceList } from '../components/DeviceList';
-import { normalizeDeviceState } from '../components/DeviceStateBadge';
 import { useMyDevices } from '../hooks/useMyDevices';
 
 const devicesPageLimit = 6;
@@ -25,10 +24,11 @@ export function DevicesPage() {
   const lastVisibleDevice = Math.min(currentSkip + devices.length, totalDevices);
   const canGoPrevious = currentSkip > 0;
   const canGoNext = currentSkip + currentLimit < totalDevices;
-  const online = devices.filter((device) => normalizeDeviceState(device.state) === 'online').length;
-  const offline = devices.filter((device) => normalizeDeviceState(device.state) === 'offline').length;
-  const activeDevices = devices.filter((device) => device.active).length;
-  const inactiveDevices = devices.filter((device) => !device.active).length;
+  const stats = data?.stats;
+  const online = stats?.onlineDevices ?? 0;
+  const offline = stats?.offlineDevices ?? 0;
+  const activeDevices = stats?.activeDevices ?? 0;
+  const inactiveDevices = stats?.inactiveDevices ?? 0;
   const isPageTransitioning = pageTransitionDirection !== null;
   const pageTransitionClass = !isPageTransitioning
     ? 'translate-x-0 opacity-100'
@@ -87,7 +87,7 @@ export function DevicesPage() {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <Card className="bg-brand-primary p-4 text-center text-white xl:p-3">
           <p className="text-xs font-medium text-brand-primary/70 xl:text-[11px]">Total devices</p>
-          <p className="mt-2 text-2xl font-semibold text-brand-primary xl:text-xl">{totalDevices}</p>
+          <p className="mt-2 text-2xl font-semibold text-brand-primary xl:text-xl">{stats?.totalDevices ?? totalDevices}</p>
         </Card>
         <Card className="bg-brand-surface p-4 text-center xl:p-3">
           <p className="text-xs font-medium text-brand-muted xl:text-[11px]">Online</p>
@@ -124,7 +124,7 @@ export function DevicesPage() {
               className="hidden h-24 w-12 rounded-2xl px-0 text-2xl xl:inline-flex"
               disabled={!canGoPrevious || isFetching}
               onClick={goToPreviousPage}
-              variant="secondary"
+              variant="primary"
             >
               {'<'}
             </Button>

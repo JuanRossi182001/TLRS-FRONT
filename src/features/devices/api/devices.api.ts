@@ -1,6 +1,7 @@
 import { apiFetch } from '../../../shared/api/httpClient';
 import {
   mapDeviceFromApi,
+  mapMyDevicesStatsFromApi,
   type MyDevicesApiResponse,
   type MyDevicesResponse,
 } from '../types/device.types';
@@ -21,6 +22,7 @@ export async function getMyDevices({ skip = 0, limit = 100 }: GetMyDevicesParams
     total: response.total,
     skip: response.skip,
     limit: response.limit,
+    stats: mapMyDevicesStatsFromApi(response.stats),
     items: response.items.map(mapDeviceFromApi),
   };
 }

@@ -18,6 +18,7 @@ export type MyDevicesApiResponse = {
   total: number;
   skip: number;
   limit: number;
+  stats: MyDevicesStatsApiResponse;
   items: DeviceApiResponse[];
 };
 
@@ -25,7 +26,24 @@ export type MyDevicesResponse = {
   total: number;
   skip: number;
   limit: number;
+  stats: MyDevicesStats;
   items: Device[];
+};
+
+export type MyDevicesStatsApiResponse = {
+  total_devices: number;
+  active_devices: number;
+  inactive_devices: number;
+  online_devices: number;
+  offline_devices: number;
+};
+
+export type MyDevicesStats = {
+  totalDevices: number;
+  activeDevices: number;
+  inactiveDevices: number;
+  onlineDevices: number;
+  offlineDevices: number;
 };
 
 export type Client = {
@@ -87,5 +105,15 @@ export function mapDeviceFromApi(device: DeviceApiResponse): Device {
     clientId: device.client_id,
     assetId: device.asset_id,
     active: device.active,
+  };
+}
+
+export function mapMyDevicesStatsFromApi(stats: MyDevicesStatsApiResponse): MyDevicesStats {
+  return {
+    totalDevices: stats.total_devices,
+    activeDevices: stats.active_devices,
+    inactiveDevices: stats.inactive_devices,
+    onlineDevices: stats.online_devices,
+    offlineDevices: stats.offline_devices,
   };
 }

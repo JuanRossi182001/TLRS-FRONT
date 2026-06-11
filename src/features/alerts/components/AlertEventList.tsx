@@ -12,7 +12,7 @@ export function AlertEventList({ events }: AlertEventListProps) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 xl:gap-2">
       {events.map((event) => (
         <AlertEventCard event={event} key={event.id_event} />
       ))}
