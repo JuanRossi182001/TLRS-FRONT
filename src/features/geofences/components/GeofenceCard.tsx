@@ -41,23 +41,25 @@ export function GeofenceCard({ geofence }: GeofenceCardProps) {
   const is_toggling_activation = setGeofenceActivation.isPending;
 
   return (
-    <Card className="space-y-4">
+    <Card className="space-y-4 p-5 xl:space-y-3 xl:p-4">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold text-brand-text">{geofence.name}</h2>
-          <p className="mt-1 text-sm leading-6 text-brand-muted">
+        <div className="min-w-0">
+          <h2 className="truncate text-xl font-semibold text-brand-text xl:text-lg">
+            {geofence.name}
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-brand-muted xl:text-xs xl:leading-5">
             {geofence.description || 'Sin descripcion'}
           </p>
         </div>
         <GeofenceBadge active={geofence.active} />
       </div>
 
-      <div className="grid gap-3 text-sm text-brand-muted sm:grid-cols-2">
-        <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+      <div className="grid gap-2 text-sm text-brand-muted sm:grid-cols-2 xl:text-xs">
+        <div className="rounded-2xl bg-brand-surfaceSoft p-4 xl:p-3">
           <span className="font-semibold text-brand-text">Creada</span>
           <p className="mt-1">{formatArgentinaDateTime(geofence.created_at)}</p>
         </div>
-        <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+        <div className="rounded-2xl bg-brand-surfaceSoft p-4 xl:p-3">
           <span className="font-semibold text-brand-text">Actualizada</span>
           <p className="mt-1">{formatArgentinaDateTime(geofence.updated_at)}</p>
         </div>
@@ -65,14 +67,14 @@ export function GeofenceCard({ geofence }: GeofenceCardProps) {
 
       <div className="flex flex-wrap gap-2">
         <Link
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primaryDark hover:shadow-md"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primaryDark hover:shadow-md xl:px-4 xl:py-2 xl:text-xs"
           to="/app/map"
         >
           <Map className="h-4 w-4" aria-hidden="true" />
           Ver en mapa
         </Link>
         <Button
-          className="gap-2"
+          className="gap-2 xl:px-4 xl:py-2 xl:text-xs"
           disabled={is_toggling_activation}
           onClick={handleActivationToggle}
           type="button"
@@ -90,7 +92,7 @@ export function GeofenceCard({ geofence }: GeofenceCardProps) {
               : 'Activar'}
         </Button>
         <Link
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-border/70 bg-brand-surface px-5 py-2.5 text-sm font-semibold text-brand-primary shadow-sm transition hover:bg-brand-surfaceSoft hover:shadow-md"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-brand-border/70 bg-brand-surface px-5 py-2.5 text-sm font-semibold text-brand-primary shadow-sm transition hover:bg-brand-surfaceSoft hover:shadow-md xl:px-4 xl:py-2 xl:text-xs"
           onClick={resetForm}
           to={`/app/map?editGeofence=${geofence.id_geofence}`}
         >
@@ -98,7 +100,7 @@ export function GeofenceCard({ geofence }: GeofenceCardProps) {
           Editar
         </Link>
         <Button
-          className="gap-2"
+          className="gap-2 xl:px-4 xl:py-2 xl:text-xs"
           onClick={() => setIsManagingDevices((current) => !current)}
           type="button"
           variant="secondary"

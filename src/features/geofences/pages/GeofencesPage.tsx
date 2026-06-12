@@ -8,7 +8,7 @@ export function GeofencesPage() {
   const { data: geofences = [], isLoading, isError, error } = useMyGeofences();
 
   return (
-    <section className="space-y-6">
+    <section className="flex min-h-0 flex-1 flex-col gap-4 xl:gap-3">
       <PageHeader
         title="Geocercas"
         description="Administra areas de contencion para tus assets. La creacion visual se realiza desde el mapa."
@@ -31,28 +31,32 @@ export function GeofencesPage() {
         />
       ) : null}
 
-      {!isLoading && !isError && geofences.length === 0 ? (
-        <EmptyState
-          title="No hay geocercas registradas"
-          message="Crea una geocerca desde el mapa marcando al menos tres puntos."
-        />
-      ) : null}
+      {!isLoading && !isError ? (
+        <div className="grid min-h-0 flex-1 gap-4 xl:grid-rows-[minmax(0,0.95fr)_minmax(0,1.05fr)] xl:gap-3">
+          <div className="min-h-0 space-y-3 xl:flex xl:min-h-0 xl:flex-col xl:space-y-2">
+            {geofences.length === 0 ? (
+              <EmptyState
+                title="No hay geocercas registradas"
+                message="Crea una geocerca desde el mapa marcando al menos tres puntos."
+              />
+            ) : (
+              <GeofenceList geofences={geofences} />
+            )}
+          </div>
 
-      {!isLoading && !isError && geofences.length > 0 ? (
-        <GeofenceList geofences={geofences} />
-      ) : null}
-
-      <div className="space-y-4">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight text-brand-text">
-            Estados actuales
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-brand-muted">
-            Estado de cada asset respecto de sus geocercas asignadas.
-          </p>
+          <div className="min-h-0 space-y-3 xl:flex xl:min-h-0 xl:flex-col xl:space-y-2">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-brand-text xl:text-xl">
+                Estados actuales
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-brand-muted xl:text-xs">
+                Estado de cada asset respecto de sus geocercas asignadas.
+              </p>
+            </div>
+            <GeofenceStatesList />
+          </div>
         </div>
-        <GeofenceStatesList />
-      </div>
+      ) : null}
     </section>
   );
 }
