@@ -5,6 +5,7 @@ import { BrandLogo } from '../components';
 const navItems = [
   { to: '/app/map', label: 'Mapa', marker: 'M' },
   { to: '/app/devices', label: 'Dispositivos', marker: 'D' },
+  { to: '/app/rodeos', label: 'Rodeos', marker: 'R' },
   { to: '/app/geofences', label: 'Geocercas', marker: 'G' },
   { to: '/app/alerts', label: 'Alertas', marker: 'A' },
 ];

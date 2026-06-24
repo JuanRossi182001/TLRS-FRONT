@@ -2,6 +2,7 @@ export type GeoFenceStatus = 'SAFE' | 'NEAR_LIMIT' | 'OUTSIDE' | 'GPS_UNCERTAIN'
 
 export type GeoFenceAssetStateApiResponse = {
   id_asset: number;
+  asset_name?: string | null;
   asset_type: string;
   asset_serial: string;
   id_device: number;
@@ -34,6 +35,7 @@ export type MyGeofenceStatesResponse = {
 
 export type GeoFenceAssetState = {
   asset_id: number;
+  asset_name?: string | null;
   asset_type: string;
   asset_serial: string;
   device_id: number;
@@ -53,6 +55,7 @@ export type GeoFenceAssetState = {
 export function mapGeofenceAssetStateFromApi(state: GeoFenceAssetStateApiResponse): GeoFenceAssetState {
   return {
     asset_id: state.id_asset,
+    asset_name: state.asset_name ?? null,
     asset_type: state.asset_type,
     asset_serial: state.asset_serial,
     device_id: state.id_device,

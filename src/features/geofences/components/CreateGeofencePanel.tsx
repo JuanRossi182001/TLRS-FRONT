@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Button, Card } from '../../../shared/components';
-import type { DeviceApiResponse } from '../../devices/types/device.types';
+import { getDeviceAssetName, type DeviceApiResponse } from '../../devices/types/device.types';
 import { useAssignAssetsToGeofence } from '../hooks/useAssignAssetsToGeofence';
 import { useCreateGeofence } from '../hooks/useCreateGeofence';
 import type { GeoFenceCreate, Position } from '../types/geofence.types';
@@ -41,6 +41,11 @@ function buildGeofencePayload(
     active,
     shape: buildShapeFromDraftPoints(draft_points),
   };
+}
+
+function buildAssignableAssetLabel(device: DeviceApiResponse) {
+  const assetLabel = getDeviceAssetName(device, 'Sin asset');
+  return `${assetLabel} - ${device.serial}`;
 }
 
 export function CreateGeofencePanel({
@@ -107,7 +112,7 @@ export function CreateGeofencePanel({
       <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold text-brand-text">Nueva geocerca</h2>
         <p className="text-sm leading-6 text-brand-muted">
-          Marca puntos sobre el mapa, completa los datos y asignala a un asset desde un collar.
+          Marca puntos sobre el mapa, completa los datos y asignala de forma directa a un asset si lo necesitas.
         </p>
       </div>
 
@@ -123,7 +128,7 @@ export function CreateGeofencePanel({
         </label>
 
         <label className="text-sm font-semibold text-brand-text">
-          Device con asset
+          Asset directo
           <select
             className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
             onChange={(event) => setSelectedAssetId(event.target.value)}
@@ -132,7 +137,7 @@ export function CreateGeofencePanel({
             <option value="">Sin asignar por ahora</option>
             {assignable_devices.map((device) => (
               <option key={device.id_device} value={device.asset_id ?? ''}>
-                {device.name} - {device.serial} - Asset {device.asset_id}
+                {buildAssignableAssetLabel(device)}
               </option>
             ))}
           </select>
@@ -167,7 +172,7 @@ export function CreateGeofencePanel({
 
       {assignable_devices.length === 0 ? (
         <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-brand-accentDark">
-          No hay dispositivos con asset_id para asignar. La geocerca se puede crear sin asignacion.
+          No hay dispositivos con asset para asignar. La geocerca se puede crear sin asignacion.
         </p>
       ) : null}
 

@@ -10,6 +10,8 @@ import { DeviceDetailPage } from '../features/devices/pages/DeviceDetailPage';
 import { DevicesPage } from '../features/devices/pages/DevicesPage';
 import { GeofencesPage } from '../features/geofences/pages/GeofencesPage';
 import { MapPage } from '../features/map/pages/MapPage';
+import { RodeoDetailPage } from '../features/rodeos/pages/RodeoDetailPage';
+import { RodeosPage } from '../features/rodeos/pages/RodeosPage';
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
 import { AppLayout } from '../shared/layouts/AppLayout';
 
@@ -53,6 +55,14 @@ export const router = createBrowserRouter([
       {
         path: 'geofences',
         element: <GeofencesPage />,
+      },
+      {
+        path: 'rodeos',
+        element: <RodeosPage />,
+      },
+      {
+        path: 'rodeos/:assetGroupId',
+        element: <RodeoDetailPage />,
       },
       {
         path: 'admin',

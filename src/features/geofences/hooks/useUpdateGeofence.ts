@@ -10,10 +10,11 @@ type UpdateGeofenceVariables = {
 export function useUpdateGeofence() {
   const queryClient = useQueryClient();
 
-  return useMutation<GeoFenceRead, Error, UpdateGeofenceVariables>({
+    return useMutation<GeoFenceRead, Error, UpdateGeofenceVariables>({
     mutationFn: ({ geofence_id, payload }) => updateGeofence(geofence_id, payload),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['geofences', 'my-geofences'] });
+      queryClient.invalidateQueries({ queryKey: ['geofences', variables.geofence_id, 'detail'] });
     },
   });
 }

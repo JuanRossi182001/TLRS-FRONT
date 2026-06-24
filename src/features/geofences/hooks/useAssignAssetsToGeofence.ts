@@ -17,6 +17,7 @@ export function useAssignAssetsToGeofence() {
     mutationFn: ({ geofence_id, payload }) => assignAssetsToGeofence(geofence_id, payload),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['geofences', 'my-geofences'] });
+      queryClient.invalidateQueries({ queryKey: ['geofences', variables.geofence_id, 'detail'] });
       queryClient.invalidateQueries({
         queryKey: ['geofences', variables.geofence_id, 'assignments'],
       });

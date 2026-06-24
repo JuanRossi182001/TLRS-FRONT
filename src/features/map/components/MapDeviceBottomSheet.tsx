@@ -2,6 +2,7 @@ import { X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../../../shared/components';
 import { formatArgentinaDateTime } from '../../../shared/utils/dateTime';
+import { getDeviceAssetName } from '../../devices/types/device.types';
 import { GeofenceStatusBadge } from '../../geofences/components/GeofenceStatusBadge';
 import type { GeoFenceAssetState } from '../../geofences/types/geofenceState.types';
 import type { DeviceLatestLocation } from '../types/map.types';
@@ -21,12 +22,14 @@ export function MapDeviceBottomSheet({
     return null;
   }
 
+  const assetLabel = getDeviceAssetName(device, device.serial);
+
   return (
     <div className="fixed inset-x-0 bottom-16 z-50 px-3 pb-[env(safe-area-inset-bottom)] md:hidden">
       <div className="rounded-[1.75rem] border border-brand-border/70 bg-brand-surface p-5 shadow-2xl shadow-brand-primary/20">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-brand-text">{device.name}</h2>
+            <h2 className="text-base font-semibold text-brand-text">{assetLabel}</h2>
             <p className="mt-1 text-xs text-brand-muted">{device.serial}</p>
           </div>
 

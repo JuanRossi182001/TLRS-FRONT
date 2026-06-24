@@ -106,7 +106,7 @@ export function GeofenceCard({ geofence }: GeofenceCardProps) {
           variant="secondary"
         >
           <Cpu className="h-4 w-4" aria-hidden="true" />
-          Gestionar dispositivos
+          Gestionar alcance
         </Button>
       </div>
 

@@ -24,6 +24,10 @@ function sortStates(states: GeoFenceAssetState[]) {
   );
 }
 
+function getStateAssetLabel(state: GeoFenceAssetState) {
+  return state.asset_name || state.asset_serial;
+}
+
 export function GeofenceStatesList() {
   const [skip, setSkip] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
@@ -159,7 +163,7 @@ export function GeofenceStatesList() {
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="truncate text-base font-semibold tracking-tight text-brand-text sm:text-lg xl:text-base">
-                            {state.asset_serial}
+                            {getStateAssetLabel(state)}
                           </h3>
                           <GeofenceStatusBadge current_status={state.current_status} />
                         </div>
@@ -178,8 +182,7 @@ export function GeofenceStatesList() {
                     <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm xl:text-xs">
                       <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
                         <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Device</p>
-                        <p className="mt-0.5 truncate font-semibold text-brand-text">{state.device_name}</p>
-                        <p className="mt-0.5 truncate text-brand-muted">{state.device_serial}</p>
+                        <p className="mt-0.5 truncate font-semibold text-brand-text">{state.device_serial}</p>
                       </div>
                       <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
                         <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Geocerca</p>

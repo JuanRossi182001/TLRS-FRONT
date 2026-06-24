@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Popup } from 'react-map-gl/maplibre';
 import { StatusBadge } from '../../../shared/components';
 import { formatArgentinaDateTime } from '../../../shared/utils/dateTime';
+import { getDeviceAssetName } from '../../devices/types/device.types';
 import { GeofenceStatusBadge } from '../../geofences/components/GeofenceStatusBadge';
 import type { GeoFenceAssetState } from '../../geofences/types/geofenceState.types';
 import type { DeviceLatestLocation } from '../types/map.types';
@@ -17,6 +18,8 @@ function formatCoordinate(value: number) {
 }
 
 export function DeviceMapPopup({ device, geofenceState, onClose }: DeviceMapPopupProps) {
+  const assetLabel = getDeviceAssetName(device, device.serial);
+
   return (
     <Popup
       latitude={device.latitude}
@@ -31,7 +34,7 @@ export function DeviceMapPopup({ device, geofenceState, onClose }: DeviceMapPopu
       <div className="space-y-4 rounded-3xl bg-brand-surface p-2 text-sm">
         <div>
           <div className="flex items-start justify-between gap-2">
-            <h2 className="font-semibold text-brand-text">{device.name}</h2>
+            <h2 className="font-semibold text-brand-text">{assetLabel}</h2>
             <StatusBadge
               label={device.active ? 'Activo' : 'Inactivo'}
               tone={device.active ? 'success' : 'default'}
@@ -61,8 +64,8 @@ export function DeviceMapPopup({ device, geofenceState, onClose }: DeviceMapPopu
               <dd className="mt-0.5 text-brand-text">{device.type}</dd>
             </div>
             <div className="rounded-2xl bg-brand-surfaceSoft p-2">
-              <dt className="font-medium text-brand-muted">Asset ID</dt>
-              <dd className="mt-0.5 text-brand-text">{device.asset_id ?? 'Sin asset'}</dd>
+              <dt className="font-medium text-brand-muted">Asset</dt>
+              <dd className="mt-0.5 text-brand-text">{assetLabel}</dd>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">

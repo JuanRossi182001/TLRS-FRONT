@@ -11,7 +11,7 @@ export function GeofencesPage() {
     <section className="flex min-h-0 flex-1 flex-col gap-4 xl:gap-3">
       <PageHeader
         title="Geocercas"
-        description="Administra areas de contencion para tus assets. La creacion visual se realiza desde el mapa."
+        description="Administra areas de contencion para tus assets y rodeos. La creacion visual se realiza desde el mapa."
         actions={
           <Link
             className="inline-flex rounded-full bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primaryDark hover:shadow-md"

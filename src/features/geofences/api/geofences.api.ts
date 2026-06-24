@@ -3,7 +3,9 @@ import type {
   GeoFenceActivationUpdate,
   GeoFenceAssignmentCreate,
   GeoFenceAssignmentRead,
+  GeoFenceAssetGroupAssignmentPayload,
   GeoFenceCreate,
+  GeoFenceDetailRead,
   GeoFenceRead,
   GeoFenceUpdate,
 } from '../types/geofence.types';
@@ -20,6 +22,10 @@ export function createGeofence(payload: GeoFenceCreate) {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+export function getGeofence(geofence_id: number) {
+  return apiFetch<GeoFenceDetailRead>(`/geofences/${geofence_id}`);
 }
 
 export function updateGeofence(geofence_id: number, payload: GeoFenceUpdate) {
@@ -60,4 +66,24 @@ export function deactivateGeofenceAssignment(assignment_id: number) {
       method: 'PATCH',
     },
   );
+}
+
+export function assignAssetGroupsToGeofence(
+  geofence_id: number,
+  payload: GeoFenceAssetGroupAssignmentPayload,
+) {
+  return apiFetch<unknown>(`/geofences/${geofence_id}/asset-groups`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function removeAssetGroupsFromGeofence(
+  geofence_id: number,
+  payload: GeoFenceAssetGroupAssignmentPayload,
+) {
+  return apiFetch<unknown>(`/geofences/${geofence_id}/asset-groups`, {
+    method: 'DELETE',
+    body: JSON.stringify(payload),
+  });
 }

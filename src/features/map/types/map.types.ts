@@ -5,6 +5,7 @@ export type DeviceLatestLocation = {
   type: string;
   client_id: number | null;
   asset_id: number | null;
+  asset_name?: string | null;
   active: boolean;
   id_location: number;
   latitude: number;

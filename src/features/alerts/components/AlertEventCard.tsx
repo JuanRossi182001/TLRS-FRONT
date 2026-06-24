@@ -17,16 +17,18 @@ const titleByEventType: Record<FenceEventType, (event: GeoFenceEventRead) => str
 };
 
 function getEventTitle(event: GeoFenceEventRead) {
-  return titleByEventType[event.event_type]?.(event)
-    ?? `${event.device_name} genero un evento en ${event.geofence_name}`;
+  const assetLabel = event.asset_name || event.device_serial;
+
+  return titleByEventType[event.event_type]?.({
+    ...event,
+    device_name: assetLabel,
+  }) ?? `${assetLabel} genero un evento en ${event.geofence_name}`;
 }
 
 function getMetadata(event: GeoFenceEventRead) {
-  const asset = event.asset_id !== null
-    ? `${event.asset_type} #${event.asset_id}`
-    : event.asset_type || 'Asset no especificado';
+  const asset = event.asset_name || event.asset_type || 'Asset no especificado';
 
-  return `${event.device_serial} - ${asset} - ${event.geofence_name}`;
+  return `${asset} - ${event.device_serial} - ${event.geofence_name}`;
 }
 
 export function AlertEventCard({ event }: AlertEventCardProps) {
@@ -55,7 +57,7 @@ export function AlertEventCard({ event }: AlertEventCardProps) {
         </div>
         <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Dispositivo</p>
-          <p className="mt-1 font-semibold text-brand-text">#{event.device_id}</p>
+          <p className="mt-1 font-semibold text-brand-text">{event.device_serial}</p>
         </div>
         <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Ubicacion</p>

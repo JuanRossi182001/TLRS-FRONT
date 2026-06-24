@@ -18,6 +18,7 @@ export type GeoFenceEventRead = {
   device_id: number;
   device_name: string;
   device_serial: string;
+  asset_name?: string | null;
   asset_type: string;
   asset_id: number | null;
   location_id: number;

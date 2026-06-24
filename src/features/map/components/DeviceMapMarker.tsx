@@ -1,4 +1,5 @@
 import { RadioTower } from 'lucide-react';
+import { getDeviceAssetName } from '../../devices/types/device.types';
 import type { GeoFenceAssetState } from '../../geofences/types/geofenceState.types';
 import { getGeofenceStatusUi } from '../../geofences/utils/geofenceStatusUi';
 import type { DeviceLatestLocation } from '../types/map.types';
@@ -16,6 +17,7 @@ export function DeviceMapMarker({
   isSelected,
   onClick,
 }: DeviceMapMarkerProps) {
+  const assetLabel = getDeviceAssetName(device, device.serial);
   const statusClassName = geofenceState
     ? getGeofenceStatusUi(geofenceState.current_status).markerClassName
     : device.active
@@ -25,7 +27,7 @@ export function DeviceMapMarker({
   return (
     <button
       type="button"
-      aria-label={`Seleccionar device ${device.name}`}
+      aria-label={`Seleccionar asset ${assetLabel}`}
       onClick={(event) => {
         event.stopPropagation();
         onClick();

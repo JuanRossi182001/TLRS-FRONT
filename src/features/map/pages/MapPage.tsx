@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader, StatusBadge } from '../../../shared/components';
 import { CreateGeofencePanel } from '../../geofences/components/CreateGeofencePanel';
@@ -9,8 +9,12 @@ import { useGeofenceStates } from '../../geofences/hooks/useGeofenceStates';
 import { useMyGeofences } from '../../geofences/hooks/useMyGeofences';
 import type { Position } from '../../geofences/types/geofence.types';
 import { getDraftPointsFromShape } from '../../geofences/utils/geofenceShape';
-import { TrackingMap } from '../components/TrackingMap';
 import { useMyDevicesLatestLocations } from '../hooks/useMyDevicesLatestLocations';
+
+const TrackingMap = lazy(async () => {
+  const module = await import('../components/TrackingMap');
+  return { default: module.TrackingMap };
+});
 
 export function MapPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -159,26 +163,28 @@ export function MapPage() {
       ) : null}
 
       {!isLoading && !isError ? (
-        <TrackingMap
-          devices={devices}
-          draftPoints={draftPoints}
-          geofences={geofences}
-          geofenceStates={geofenceStates}
-          isDrawingGeofence={isDrawingGeofence}
-          onAddDraftPoint={(point) => setDraftPoints((currentPoints) => [...currentPoints, point])}
-          onMoveDraftPoint={(index, point) =>
-            setDraftPoints((currentPoints) =>
-              currentPoints.map((currentPoint, currentIndex) =>
-                currentIndex === index ? point : currentPoint,
-              ),
-            )
-          }
-          onRemoveDraftPoint={(index) =>
-            setDraftPoints((currentPoints) =>
-              currentPoints.filter((_, currentIndex) => currentIndex !== index),
-            )
-          }
-        />
+        <Suspense fallback={<LoadingState message="Cargando mapa interactivo..." />}>
+          <TrackingMap
+            devices={devices}
+            draftPoints={draftPoints}
+            geofences={geofences}
+            geofenceStates={geofenceStates}
+            isDrawingGeofence={isDrawingGeofence}
+            onAddDraftPoint={(point) => setDraftPoints((currentPoints) => [...currentPoints, point])}
+            onMoveDraftPoint={(index, point) =>
+              setDraftPoints((currentPoints) =>
+                currentPoints.map((currentPoint, currentIndex) =>
+                  currentIndex === index ? point : currentPoint,
+                ),
+              )
+            }
+            onRemoveDraftPoint={(index) =>
+              setDraftPoints((currentPoints) =>
+                currentPoints.filter((_, currentIndex) => currentIndex !== index),
+              )
+            }
+          />
+        </Suspense>
       ) : null}
     </section>
   );

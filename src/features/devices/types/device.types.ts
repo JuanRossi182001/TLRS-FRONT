@@ -11,6 +11,9 @@ export type DeviceApiResponse = {
   communication_protocol: string;
   client_id: number | null;
   asset_id: number | null;
+  asset_name?: string | null;
+  asset_type?: string | null;
+  asset_serial?: string | null;
   active: boolean;
 };
 
@@ -71,9 +74,39 @@ export type Device = {
   communicationProtocol: string;
   clientId: number | null;
   assetId: number | null;
+  assetName?: string | null;
+  assetSerial?: string | null;
   active: boolean;
   lastSeenAt?: string;
 };
+
+type DeviceAssetReference = {
+  assetId?: number | null;
+  assetName?: string | null;
+  assetSerial?: string | null;
+  asset_id?: number | null;
+  asset_name?: string | null;
+  asset_serial?: string | null;
+};
+
+export function getDeviceAssetName(
+  device: DeviceAssetReference,
+  fallback = 'Sin asset',
+) {
+  const assetName = device.assetName ?? device.asset_name;
+
+  if (typeof assetName === 'string' && assetName.trim()) {
+    return assetName.trim();
+  }
+
+  const assetSerial = device.assetSerial ?? device.asset_serial;
+
+  if (typeof assetSerial === 'string' && assetSerial.trim()) {
+    return assetSerial.trim();
+  }
+
+  return fallback;
+}
 
 export type DeviceLocation = {
   idLocation: number;
@@ -104,6 +137,8 @@ export function mapDeviceFromApi(device: DeviceApiResponse): Device {
     communicationProtocol: device.communication_protocol,
     clientId: device.client_id,
     assetId: device.asset_id,
+    assetName: device.asset_name ?? null,
+    assetSerial: device.asset_serial ?? null,
     active: device.active,
   };
 }

@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useDeferredValue, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Button,
   EmptyState,
@@ -8,39 +9,171 @@ import {
   StatusBadge,
 } from '../../../shared/components';
 import { formatArgentinaDateTime } from '../../../shared/utils/dateTime';
+import { DeviceStateBadge } from '../../devices/components/DeviceStateBadge';
+import { getDeviceAssetName, type DeviceApiResponse } from '../../devices/types/device.types';
+import { RodeoAssetSelector } from '../../rodeos/components/RodeoAssetSelector';
+import { useMyRodeos } from '../../rodeos/hooks/useMyRodeos';
+import type { RodeoAssetOption } from '../../rodeos/types/rodeo.types';
+import { useAssignAssetGroupsToGeofence } from '../hooks/useAssignAssetGroupsToGeofence';
 import { useAssignAssetsToGeofence } from '../hooks/useAssignAssetsToGeofence';
 import { useDeactivateGeofenceAssignment } from '../hooks/useDeactivateGeofenceAssignment';
+import { useGeofence } from '../hooks/useGeofence';
 import { useGeofenceAssignableDevices } from '../hooks/useGeofenceAssignableDevices';
 import { useGeofenceAssignments } from '../hooks/useGeofenceAssignments';
-import type { GeoFenceAssignmentRead } from '../types/geofence.types';
+import { useRemoveAssetGroupsFromGeofence } from '../hooks/useRemoveAssetGroupsFromGeofence';
+import type {
+  GeoFenceAssignedAsset,
+  GeoFenceAssignedAssetGroup,
+  GeoFenceAssignmentRead,
+} from '../types/geofence.types';
 
 type GeofenceAssignmentManagerProps = {
   geofence_id: number;
   is_open: boolean;
 };
 
-const devicesPerPage = 3;
-type PageTransitionDirection = 'next' | 'previous' | null;
+type AssetGroupSelectorProps = {
+  title: string;
+  groups: GeoFenceAssignedAssetGroup[];
+  selected_ids: number[];
+  on_change: (ids: number[]) => void;
+  empty_message: string;
+};
 
 function getAssignmentId(assignment: GeoFenceAssignmentRead) {
   return assignment.id_assignment ?? assignment.id_geofence_assignment ?? null;
 }
 
-function getTotalPages(totalItems: number) {
-  return Math.max(1, Math.ceil(totalItems / devicesPerPage));
-}
-
-function getVisibleItems<T>(items: T[], page: number) {
-  const start = (page - 1) * devicesPerPage;
-  return items.slice(start, start + devicesPerPage);
-}
-
-function getPageTransitionClass(direction: PageTransitionDirection) {
-  if (!direction) {
-    return 'translate-x-0 opacity-100';
+function getAssetLabel(asset: GeoFenceAssignedAsset, fallbackAssetName?: string | null) {
+  if (asset.asset_name?.trim()) {
+    return asset.asset_name.trim();
   }
 
-  return direction === 'next' ? '-translate-x-4 opacity-60' : 'translate-x-4 opacity-60';
+  if (asset.asset_serial?.trim()) {
+    return asset.asset_serial.trim();
+  }
+
+  if (typeof fallbackAssetName === 'string' && fallbackAssetName.trim()) {
+    return fallbackAssetName.trim();
+  }
+
+  return 'Asset sin nombre';
+}
+
+function getDirectAssetOption(device: DeviceApiResponse): RodeoAssetOption | null {
+  if (device.asset_id === null) {
+    return null;
+  }
+
+  const label = getDeviceAssetName(device, device.name.trim());
+
+  return {
+    asset_id: device.asset_id,
+    asset_name: device.asset_name ?? null,
+    asset_type: device.asset_type ?? null,
+    asset_serial: device.asset_serial ?? null,
+    device_id: device.id_device,
+    device_name: device.name,
+    device_serial: device.serial,
+    device_active: device.active,
+    device_state: device.state,
+    label,
+    search_text: [
+      label,
+      device.asset_name,
+      device.asset_type,
+      device.asset_serial,
+      device.asset_id,
+      device.name,
+      device.serial,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase(),
+  };
+}
+
+function getGroupErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+function AssetGroupSelector({
+  title,
+  groups,
+  selected_ids,
+  on_change,
+  empty_message,
+}: AssetGroupSelectorProps) {
+  const [search, setSearch] = useState('');
+  const deferredSearch = useDeferredValue(search);
+
+  const filteredGroups = useMemo(() => {
+    const normalizedSearch = deferredSearch.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return groups;
+    }
+
+    return groups.filter((group) =>
+      [group.name, group.description, group.id_asset_group]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(normalizedSearch),
+    );
+  }, [deferredSearch, groups]);
+
+  function handleToggle(id_asset_group: number, checked: boolean) {
+    if (checked) {
+      on_change([...selected_ids, id_asset_group]);
+      return;
+    }
+
+    on_change(selected_ids.filter((selected_id) => selected_id !== id_asset_group));
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="text-sm font-semibold text-brand-text">{title}</h3>
+        <span className="text-xs font-medium text-brand-muted">{selected_ids.length} seleccionados</span>
+      </div>
+
+      <input
+        className="w-full rounded-2xl border border-brand-border bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+        onChange={(event) => setSearch(event.target.value)}
+        placeholder="Buscar por nombre o descripcion"
+        value={search}
+      />
+
+      {filteredGroups.length === 0 ? (
+        <p className="rounded-2xl bg-white px-4 py-3 text-sm text-brand-muted">{empty_message}</p>
+      ) : (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {filteredGroups.map((group) => (
+            <label
+              className="flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-3 text-sm text-brand-text"
+              key={group.id_asset_group}
+            >
+              <input
+                checked={selected_ids.includes(group.id_asset_group)}
+                className="mt-1 h-4 w-4 accent-brand-primary"
+                onChange={(event) => handleToggle(group.id_asset_group, event.target.checked)}
+                type="checkbox"
+              />
+              <span>
+                <span className="block font-semibold">{group.name}</span>
+                <span className="block text-brand-muted">{group.description || 'Sin descripcion'}</span>
+                <span className="block text-xs text-brand-muted">
+                  {group.total_assets ?? 0} animales
+                </span>
+              </span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function GeofenceAssignmentManager({
@@ -48,96 +181,82 @@ export function GeofenceAssignmentManager({
   is_open,
 }: GeofenceAssignmentManagerProps) {
   const [selected_asset_ids, setSelectedAssetIds] = useState<number[]>([]);
-  const [assignedPage, setAssignedPage] = useState(1);
-  const [assignablePage, setAssignablePage] = useState(1);
-  const [assignedTouchStartX, setAssignedTouchStartX] = useState<number | null>(null);
-  const [assignableTouchStartX, setAssignableTouchStartX] = useState<number | null>(null);
-  const [assignedTransitionDirection, setAssignedTransitionDirection] =
-    useState<PageTransitionDirection>(null);
-  const [assignableTransitionDirection, setAssignableTransitionDirection] =
-    useState<PageTransitionDirection>(null);
+  const [selected_asset_group_ids, setSelectedAssetGroupIds] = useState<number[]>([]);
+  const [selected_assigned_group_ids, setSelectedAssignedGroupIds] = useState<number[]>([]);
+  const geofence = useGeofence(geofence_id, is_open);
   const assignments = useGeofenceAssignments(geofence_id, is_open);
   const devices = useGeofenceAssignableDevices(is_open);
+  const rodeos = useMyRodeos();
   const assignAssets = useAssignAssetsToGeofence();
   const deactivateAssignment = useDeactivateGeofenceAssignment();
+  const assignAssetGroups = useAssignAssetGroupsToGeofence();
+  const removeAssetGroups = useRemoveAssetGroupsFromGeofence();
 
-  const active_assignments = useMemo(
+  const activeAssignments = useMemo(
     () => (assignments.data ?? []).filter((assignment) => assignment.active),
     [assignments.data],
   );
-
-  const assigned_asset_ids = useMemo(
-    () => new Set(active_assignments.map((assignment) => assignment.asset_id)),
-    [active_assignments],
-  );
-
-  const assignable_devices = useMemo(
+  const assignmentByAssetId = useMemo(
     () =>
-      (devices.data ?? []).filter(
-        (device) => device.asset_id !== null && !assigned_asset_ids.has(device.asset_id),
-      ),
-    [assigned_asset_ids, devices.data],
+      new Map(activeAssignments.map((assignment) => [assignment.asset_id, assignment] as const)),
+    [activeAssignments],
   );
-  const assignedTotalPages = getTotalPages(active_assignments.length);
-  const assignableTotalPages = getTotalPages(assignable_devices.length);
-  const currentAssignedPage = Math.min(assignedPage, assignedTotalPages);
-  const currentAssignablePage = Math.min(assignablePage, assignableTotalPages);
-  const visibleAssignedAssignments = useMemo(
-    () => getVisibleItems(active_assignments, currentAssignedPage),
-    [active_assignments, currentAssignedPage],
+  const directlyAssignedAssetIds = useMemo(
+    () => new Set((geofence.data?.assets_assigned_direct ?? []).map((asset) => asset.asset_id)),
+    [geofence.data?.assets_assigned_direct],
   );
-  const visibleAssignableDevices = useMemo(
-    () => getVisibleItems(assignable_devices, currentAssignablePage),
-    [assignable_devices, currentAssignablePage],
+  const availableDirectAssets = useMemo(
+    () =>
+      (devices.data ?? [])
+        .map(getDirectAssetOption)
+        .filter((option): option is RodeoAssetOption => option !== null)
+        .filter((option) => !directlyAssignedAssetIds.has(option.asset_id)),
+    [devices.data, directlyAssignedAssetIds],
   );
-  const canGoPreviousAssigned = currentAssignedPage > 1;
-  const canGoNextAssigned = currentAssignedPage < assignedTotalPages;
-  const canGoPreviousAssignable = currentAssignablePage > 1;
-  const canGoNextAssignable = currentAssignablePage < assignableTotalPages;
-  const isAssignedTransitioning = assignedTransitionDirection !== null;
-  const isAssignableTransitioning = assignableTransitionDirection !== null;
-  const assignedTransitionClass = getPageTransitionClass(assignedTransitionDirection);
-  const assignableTransitionClass = getPageTransitionClass(assignableTransitionDirection);
+  const assignedAssetGroupIds = useMemo(
+    () => new Set((geofence.data?.asset_groups_assigned ?? []).map((group) => group.id_asset_group)),
+    [geofence.data?.asset_groups_assigned],
+  );
+  const availableRodeos = useMemo(
+    () =>
+      (rodeos.data ?? [])
+        .filter((rodeo) => rodeo.active && !assignedAssetGroupIds.has(rodeo.id_asset_group))
+        .map((rodeo) => ({
+          id_asset_group: rodeo.id_asset_group,
+          name: rodeo.name,
+          description: rodeo.description,
+          active: rodeo.active,
+          total_assets: rodeo.total_assets,
+        })),
+    [assignedAssetGroupIds, rodeos.data],
+  );
 
-  useEffect(() => {
-    setAssignedPage((current) => Math.min(current, assignedTotalPages));
-  }, [assignedTotalPages]);
+  if (!is_open) {
+    return null;
+  }
 
-  useEffect(() => {
-    setAssignablePage((current) => Math.min(current, assignableTotalPages));
-  }, [assignableTotalPages]);
-
-  useEffect(() => {
-    if (!isAssignedTransitioning) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setAssignedTransitionDirection(null);
-    }, 180);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [isAssignedTransitioning]);
-
-  useEffect(() => {
-    if (!isAssignableTransitioning) {
-      return;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setAssignableTransitionDirection(null);
-    }, 180);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [isAssignableTransitioning]);
-
-  function handleSelection(asset_id: number, checked: boolean) {
-    setSelectedAssetIds((current) =>
-      checked ? [...current, asset_id] : current.filter((selected) => selected !== asset_id),
+  if (geofence.isLoading) {
+    return (
+      <div className="space-y-4 rounded-2xl border border-brand-border bg-brand-surfaceSoft p-4">
+        <LoadingState message="Cargando detalle de la geocerca..." />
+      </div>
     );
   }
 
-  async function handleAssign(event: FormEvent<HTMLFormElement>) {
+  if (geofence.isError || !geofence.data) {
+    return (
+      <div className="space-y-4 rounded-2xl border border-brand-border bg-brand-surfaceSoft p-4">
+        <ErrorState
+          title="No pudimos cargar el detalle de la geocerca"
+          message={getGroupErrorMessage(geofence.error, 'Intentalo nuevamente.')}
+        />
+      </div>
+    );
+  }
+
+  const geofenceDetail = geofence.data;
+
+  async function handleAssignAssets(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (selected_asset_ids.length === 0) {
@@ -151,7 +270,11 @@ export function GeofenceAssignmentManager({
     setSelectedAssetIds([]);
   }
 
-  async function handleDeactivate(assignment: GeoFenceAssignmentRead) {
+  async function handleDeactivate(assignment: GeoFenceAssignmentRead | undefined) {
+    if (!assignment) {
+      return;
+    }
+
     const assignment_id = getAssignmentId(assignment);
 
     if (!assignment_id) {
@@ -161,342 +284,359 @@ export function GeofenceAssignmentManager({
     await deactivateAssignment.mutateAsync({ assignment_id, geofence_id });
   }
 
-  function goToPreviousAssignedPage() {
-    setAssignedTransitionDirection('previous');
-    setAssignedPage((page) => Math.max(1, page - 1));
-  }
+  async function handleAssignGroups(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
-  function goToNextAssignedPage() {
-    setAssignedTransitionDirection('next');
-    setAssignedPage((page) => Math.min(assignedTotalPages, page + 1));
-  }
-
-  function goToPreviousAssignablePage() {
-    setAssignableTransitionDirection('previous');
-    setAssignablePage((page) => Math.max(1, page - 1));
-  }
-
-  function goToNextAssignablePage() {
-    setAssignableTransitionDirection('next');
-    setAssignablePage((page) => Math.min(assignableTotalPages, page + 1));
-  }
-
-  function handleAssignedTouchEnd(clientX: number) {
-    if (assignedTouchStartX === null) {
+    if (selected_asset_group_ids.length === 0) {
       return;
     }
 
-    const distance = assignedTouchStartX - clientX;
-    const minSwipeDistance = 50;
-
-    if (distance > minSwipeDistance && canGoNextAssigned) {
-      goToNextAssignedPage();
-    }
-
-    if (distance < -minSwipeDistance && canGoPreviousAssigned) {
-      goToPreviousAssignedPage();
-    }
-
-    setAssignedTouchStartX(null);
+    await assignAssetGroups.mutateAsync({
+      geofence_id,
+      payload: { asset_group_ids: selected_asset_group_ids },
+    });
+    setSelectedAssetGroupIds([]);
   }
 
-  function handleAssignableTouchEnd(clientX: number) {
-    if (assignableTouchStartX === null) {
+  async function handleRemoveGroups(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (selected_assigned_group_ids.length === 0) {
       return;
     }
 
-    const distance = assignableTouchStartX - clientX;
-    const minSwipeDistance = 50;
-
-    if (distance > minSwipeDistance && canGoNextAssignable) {
-      goToNextAssignablePage();
-    }
-
-    if (distance < -minSwipeDistance && canGoPreviousAssignable) {
-      goToPreviousAssignablePage();
-    }
-
-    setAssignableTouchStartX(null);
-  }
-
-  const assignedFirstVisible =
-    active_assignments.length === 0 ? 0 : (currentAssignedPage - 1) * devicesPerPage + 1;
-  const assignedLastVisible = Math.min(
-    currentAssignedPage * devicesPerPage,
-    active_assignments.length,
-  );
-  const assignableFirstVisible =
-    assignable_devices.length === 0 ? 0 : (currentAssignablePage - 1) * devicesPerPage + 1;
-  const assignableLastVisible = Math.min(
-    currentAssignablePage * devicesPerPage,
-    assignable_devices.length,
-  );
-
-  if (!is_open) {
-    return null;
+    await removeAssetGroups.mutateAsync({
+      geofence_id,
+      payload: { asset_group_ids: selected_assigned_group_ids },
+    });
+    setSelectedAssignedGroupIds([]);
   }
 
   return (
     <div className="space-y-4 rounded-2xl border border-brand-border bg-brand-surfaceSoft p-4">
-      <div className="space-y-3">
-        <h3 className="text-sm font-semibold text-brand-text">Dispositivos asignados</h3>
-
-        {assignments.isLoading ? <LoadingState message="Cargando asignaciones..." /> : null}
-
-        {assignments.isError ? (
-          <ErrorState
-            title="No pudimos cargar las asignaciones"
-            message={
-              assignments.error instanceof Error
-                ? assignments.error.message
-                : 'Intentalo nuevamente.'
-            }
-          />
-        ) : null}
-
-        {!assignments.isLoading && !assignments.isError && active_assignments.length === 0 ? (
-          <EmptyState
-            title="Sin dispositivos asignados"
-            message="Todavia no hay dispositivos activos en esta geocerca."
-          />
-        ) : null}
-
-        {active_assignments.length > 0 ? (
-          <div className="space-y-3">
-            <div
-              className="space-y-2 touch-pan-y"
-              onTouchEnd={(event) => handleAssignedTouchEnd(event.changedTouches[0].clientX)}
-              onTouchStart={(event) => setAssignedTouchStartX(event.touches[0].clientX)}
-            >
-              <div className="flex items-center justify-between gap-3 text-xs font-medium text-brand-muted">
-                <span>
-                  Mostrando {assignedFirstVisible}-{assignedLastVisible} de{' '}
-                  {active_assignments.length}
-                </span>
-                <span>
-                  Pagina {currentAssignedPage} de {assignedTotalPages}
-                </span>
-              </div>
-
-              <div className="relative overflow-hidden rounded-3xl">
-                <div className={['grid gap-3 transition duration-400 ease-out', assignedTransitionClass].join(' ')}>
-                  {visibleAssignedAssignments.map((assignment) => {
-                    const device = (devices.data ?? []).find(
-                      (candidate) => candidate.asset_id === assignment.asset_id,
-                    );
-                    const assignment_id = getAssignmentId(assignment);
-                    const is_deactivating =
-                      deactivateAssignment.isPending &&
-                      deactivateAssignment.variables?.assignment_id === assignment_id;
-
-                    return (
-                      <div
-                        className="flex flex-col gap-3 rounded-2xl border border-brand-border bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
-                        key={assignment_id ?? assignment.asset_id}
-                      >
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-semibold text-brand-text">
-                              {device ? device.name : `Asset ${assignment.asset_id}`}
-                            </p>
-                            <StatusBadge label="Activo" tone="success" />
-                          </div>
-                          <p className="mt-1 text-sm text-brand-muted">
-                            {device
-                              ? `${device.serial} - Asset ${assignment.asset_id}`
-                              : `Asset ${assignment.asset_id}`}
-                          </p>
-                          <p className="mt-1 text-xs text-brand-muted">
-                            Asignado {formatArgentinaDateTime(assignment.assigned_at)}
-                          </p>
-                        </div>
-
-                        <Button
-                          className="w-full sm:w-auto"
-                          disabled={!assignment_id || is_deactivating}
-                          onClick={() => handleDeactivate(assignment)}
-                          type="button"
-                          variant="secondary"
-                        >
-                          {is_deactivating ? 'Desactivando...' : 'Desactivar'}
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {isAssignedTransitioning ? (
-                  <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center xl:hidden">
-                    <span className="rounded-full bg-brand-primary/90 px-3 py-1 text-xs font-semibold text-white shadow-lg shadow-brand-primary/20">
-                      Cambiando pagina...
-                    </span>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-
-            {assignedTotalPages > 1 ? (
-              <div className="flex items-center justify-between gap-2">
-                <Button
-                  className="px-3 py-2 text-xs"
-                  disabled={!canGoPreviousAssigned}
-                  onClick={goToPreviousAssignedPage}
-                  type="button"
-                >
-                  Anterior
-                </Button>
-                <Button
-                  className="px-3 py-2 text-xs"
-                  disabled={!canGoNextAssigned}
-                  onClick={goToNextAssignedPage}
-                  type="button"
-                >
-                  Siguiente
-                </Button>
-              </div>
-            ) : null}
-
-            {assignedTotalPages > 1 ? (
-              <p className="text-center text-xs font-medium text-brand-muted xl:hidden">
-                Desliza los dispositivos asignados hacia la izquierda o derecha para cambiar de pagina.
-              </p>
-            ) : null}
-          </div>
-        ) : null}
+      <div>
+        <h3 className="text-sm font-semibold text-brand-text">Alcance de la geocerca</h3>
+        <p className="mt-1 text-sm text-brand-muted">
+          Combina asignacion directa por asset y asignacion indirecta por rodeos.
+        </p>
       </div>
 
-      <form className="space-y-3" onSubmit={handleAssign}>
-        <h3 className="text-sm font-semibold text-brand-text">Agregar dispositivos</h3>
+      <div className="grid gap-4 xl:grid-cols-3">
+          <div className="rounded-2xl border border-brand-border bg-white p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">
+              Assets directos
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-brand-primary">
+              {geofenceDetail.total_assets_direct}
+            </p>
+            <p className="mt-1 text-sm text-brand-muted">
+              Asignados manualmente a esta geocerca.
+            </p>
+          </div>
 
-        {devices.isLoading ? <LoadingState message="Cargando dispositivos..." /> : null}
+          <div className="rounded-2xl border border-brand-border bg-white p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">
+              Rodeos asignados
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-brand-primary">
+              {geofenceDetail.total_asset_groups}
+            </p>
+            <p className="mt-1 text-sm text-brand-muted">
+              Rodeos que aportan miembros a la geocerca.
+            </p>
+          </div>
 
-        {devices.isError ? (
-          <ErrorState
-            title="No pudimos cargar los dispositivos"
-            message={
-              devices.error instanceof Error ? devices.error.message : 'Intentalo nuevamente.'
-            }
-          />
-        ) : null}
+          <div className="rounded-2xl border border-brand-border bg-white p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">
+              Assets efectivos
+            </p>
+            <p className="mt-2 text-2xl font-semibold text-brand-primary">
+              {geofenceDetail.total_assets_effective}
+            </p>
+            <p className="mt-1 text-sm text-brand-muted">
+              Total real cubierto entre directos y rodeos.
+            </p>
+          </div>
+        </div>
 
-        {!devices.isLoading && !devices.isError && assignable_devices.length === 0 ? (
-          <p className="rounded-2xl bg-white px-4 py-3 text-sm text-brand-muted">
-            No hay dispositivos con asset disponible para agregar.
-          </p>
-        ) : null}
+      <div className="grid gap-4 xl:grid-cols-3">
+        <div className="space-y-4 rounded-2xl border border-brand-border bg-white p-4">
+          <div>
+            <h4 className="text-base font-semibold text-brand-text">Assets directos</h4>
+            <p className="mt-1 text-sm text-brand-muted">
+              Mantiene la asignacion manual asset por asset.
+            </p>
+          </div>
 
-        {assignable_devices.length > 0 ? (
-          <div className="space-y-3">
-            <div
-              className="space-y-2 touch-pan-y"
-              onTouchEnd={(event) => handleAssignableTouchEnd(event.changedTouches[0].clientX)}
-              onTouchStart={(event) => setAssignableTouchStartX(event.touches[0].clientX)}
-            >
-              <div className="flex items-center justify-between gap-3 text-xs font-medium text-brand-muted">
-                <span>
-                  Mostrando {assignableFirstVisible}-{assignableLastVisible} de{' '}
-                  {assignable_devices.length}
-                </span>
-                <span>
-                  Pagina {currentAssignablePage} de {assignableTotalPages}
-                </span>
-              </div>
+          {assignments.isLoading || devices.isLoading ? (
+            <LoadingState message="Cargando assets directos..." />
+          ) : null}
 
-              <div className="relative overflow-hidden rounded-3xl">
-                <div
-                  className={[
-                    'grid gap-2 transition duration-400 ease-out sm:grid-cols-2',
-                    assignableTransitionClass,
-                  ].join(' ')}
-                >
-                  {visibleAssignableDevices.map((device) => {
-                    const asset_id = device.asset_id;
+          {assignments.isError ? (
+            <ErrorState
+              title="No pudimos cargar las asignaciones directas"
+              message={getGroupErrorMessage(assignments.error, 'Intentalo nuevamente.')}
+            />
+          ) : null}
 
-                    if (asset_id === null) {
-                      return null;
-                    }
+          {!assignments.isLoading && !assignments.isError && geofenceDetail.assets_assigned_direct.length === 0 ? (
+            <EmptyState
+              title="Sin assets directos"
+              message="Todavia no hay assets asignados manualmente a esta geocerca."
+            />
+          ) : null}
 
-                    return (
-                      <label
-                        className="flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-3 text-sm text-brand-text"
-                        key={device.id_device}
+          {geofenceDetail.assets_assigned_direct.length > 0 ? (
+            <div className="max-h-96 space-y-3 overflow-y-auto pr-1">
+              {geofenceDetail.assets_assigned_direct.map((asset) => {
+                const assignment = assignmentByAssetId.get(asset.asset_id);
+                const assignment_id = assignment ? getAssignmentId(assignment) : null;
+                const fallbackDevice = (devices.data ?? []).find(
+                  (device) => device.asset_id === asset.asset_id,
+                );
+                const device_id = asset.device_id ?? fallbackDevice?.id_device ?? null;
+                const device_name = asset.device_name ?? fallbackDevice?.name ?? null;
+                const device_serial = asset.device_serial ?? fallbackDevice?.serial ?? null;
+                const device_state = asset.device_state ?? fallbackDevice?.state ?? 'unknown';
+                const device_active = asset.device_active ?? fallbackDevice?.active ?? null;
+                const fallbackAssetName = fallbackDevice?.asset_name ?? null;
+                const isDeactivating =
+                  deactivateAssignment.isPending &&
+                  deactivateAssignment.variables?.assignment_id === assignment_id;
+
+                return (
+                  <div
+                    className="rounded-2xl border border-brand-border bg-brand-surfaceSoft p-4"
+                    key={asset.asset_id}
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-brand-text">
+                        {getAssetLabel(asset, fallbackAssetName)}
+                      </p>
+                      {asset.asset_type ? <StatusBadge label={asset.asset_type} /> : null}
+                    </div>
+                    {device_id ? (
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                        <Link
+                          className="font-semibold text-brand-primary hover:underline"
+                          to={`/app/devices/${device_id}`}
+                        >
+                          {device_serial || device_name || 'Sin serial'}
+                        </Link>
+                        <DeviceStateBadge state={device_state} />
+                        {typeof device_active === 'boolean' ? (
+                          <StatusBadge
+                            label={device_active ? 'Activo' : 'Inactivo'}
+                            tone={device_active ? 'success' : 'default'}
+                          />
+                        ) : null}
+                      </div>
+                    ) : null}
+
+                    {assignment ? (
+                      <p className="mt-2 text-xs text-brand-muted">
+                        Asignado {formatArgentinaDateTime(assignment.assigned_at)}
+                      </p>
+                    ) : null}
+
+                    <div className="mt-3">
+                      <Button
+                        className="w-full"
+                        disabled={!assignment_id || isDeactivating}
+                        onClick={() => handleDeactivate(assignment)}
+                        type="button"
+                        variant="secondary"
                       >
-                        <input
-                          checked={selected_asset_ids.includes(asset_id)}
-                          className="mt-1 h-4 w-4 accent-brand-primary"
-                          onChange={(event) => handleSelection(asset_id, event.target.checked)}
-                          type="checkbox"
-                        />
-                        <span>
-                          <span className="block font-semibold">{device.name}</span>
-                          <span className="block text-brand-muted">
-                            {device.serial} - Asset {asset_id}
-                          </span>
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-
-                {isAssignableTransitioning ? (
-                  <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center xl:hidden">
-                    <span className="rounded-full bg-brand-primary/90 px-3 py-1 text-xs font-semibold text-white shadow-lg shadow-brand-primary/20">
-                      Cambiando pagina...
-                    </span>
+                        {isDeactivating ? 'Quitando...' : 'Quitar asignacion directa'}
+                      </Button>
+                    </div>
                   </div>
-                ) : null}
-              </div>
+                );
+              })}
             </div>
+          ) : null}
 
-            {assignableTotalPages > 1 ? (
-              <div className="flex items-center justify-between gap-2">
-                <Button
-                  className="px-3 py-2 text-xs"
-                  disabled={!canGoPreviousAssignable}
-                  onClick={goToPreviousAssignablePage}
-                  type="button"
-                >
-                  Anterior
-                </Button>
-                <Button
-                  className="px-3 py-2 text-xs"
-                  disabled={!canGoNextAssignable}
-                  onClick={goToNextAssignablePage}
-                  type="button"
-                >
-                  Siguiente
-                </Button>
-              </div>
-            ) : null}
+          <form className="space-y-4 border-t border-brand-border pt-4" onSubmit={handleAssignAssets}>
+            <RodeoAssetSelector
+              empty_message="No hay assets disponibles para asignar de forma directa."
+              on_change={setSelectedAssetIds}
+              options={availableDirectAssets}
+              selected_asset_ids={selected_asset_ids}
+              title="Agregar assets directos"
+            />
 
-            {assignableTotalPages > 1 ? (
-              <p className="text-center text-xs font-medium text-brand-muted xl:hidden">
-                Desliza los dispositivos disponibles hacia la izquierda o derecha para cambiar de pagina.
+            {assignAssets.isError ? (
+              <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-brand-danger">
+                {assignAssets.error.message}
               </p>
             ) : null}
+
+            {deactivateAssignment.isError ? (
+              <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-brand-danger">
+                {deactivateAssignment.error.message}
+              </p>
+            ) : null}
+
+            <Button disabled={selected_asset_ids.length === 0 || assignAssets.isPending} type="submit">
+              {assignAssets.isPending ? 'Asignando...' : 'Asignar assets directos'}
+            </Button>
+          </form>
+        </div>
+
+        <div className="space-y-4 rounded-2xl border border-brand-border bg-white p-4">
+          <div>
+            <h4 className="text-base font-semibold text-brand-text">Rodeos asignados</h4>
+            <p className="mt-1 text-sm text-brand-muted">
+              Los rodeos agregan sus miembros al alcance efectivo de la geocerca.
+            </p>
           </div>
-        ) : null}
 
-        {assignAssets.isError ? (
-          <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-brand-danger">
-            {assignAssets.error.message}
-          </p>
-        ) : null}
+          {rodeos.isLoading ? <LoadingState message="Cargando rodeos..." /> : null}
 
-        {deactivateAssignment.isError ? (
-          <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-brand-danger">
-            {deactivateAssignment.error.message}
-          </p>
-        ) : null}
+          {rodeos.isError ? (
+            <ErrorState
+              title="No pudimos cargar los rodeos"
+              message={getGroupErrorMessage(rodeos.error, 'Intentalo nuevamente.')}
+            />
+          ) : null}
 
-        <Button
-          className="w-full sm:w-auto"
-          disabled={selected_asset_ids.length === 0 || assignAssets.isPending}
-          type="submit"
-        >
-          {assignAssets.isPending ? 'Agregando...' : 'Agregar seleccionados'}
-        </Button>
-      </form>
+          {geofenceDetail.asset_groups_assigned.length === 0 ? (
+            <EmptyState
+              title="Sin rodeos asignados"
+              message="Puedes sumar rodeos para ampliar el alcance sin perder las asignaciones directas."
+            />
+          ) : (
+            <div className="max-h-72 space-y-3 overflow-y-auto pr-1">
+              {geofenceDetail.asset_groups_assigned.map((group) => (
+                <div
+                  className="rounded-2xl border border-brand-border bg-brand-surfaceSoft p-4"
+                  key={group.id_asset_group}
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      className="font-semibold text-brand-primary hover:underline"
+                      to={`/app/rodeos/${group.id_asset_group}`}
+                    >
+                      {group.name}
+                    </Link>
+                    <StatusBadge
+                      label={group.active === false ? 'Inactivo' : 'Activo'}
+                      tone={group.active === false ? 'default' : 'success'}
+                    />
+                  </div>
+                  <p className="mt-1 text-sm text-brand-muted">{group.description || 'Sin descripcion'}</p>
+                  <p className="mt-2 text-xs text-brand-muted">
+                    {group.total_assets ?? 0} animales en el rodeo
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <form className="space-y-4 border-t border-brand-border pt-4" onSubmit={handleAssignGroups}>
+            <AssetGroupSelector
+              empty_message="No hay rodeos activos disponibles para asignar."
+              groups={availableRodeos}
+              on_change={setSelectedAssetGroupIds}
+              selected_ids={selected_asset_group_ids}
+              title="Agregar rodeos"
+            />
+
+            {assignAssetGroups.isError ? (
+              <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-brand-danger">
+                {assignAssetGroups.error.message}
+              </p>
+            ) : null}
+
+            <Button
+              disabled={selected_asset_group_ids.length === 0 || assignAssetGroups.isPending}
+              type="submit"
+            >
+              {assignAssetGroups.isPending ? 'Asignando...' : 'Asignar rodeos seleccionados'}
+            </Button>
+          </form>
+
+          <form className="space-y-4 border-t border-brand-border pt-4" onSubmit={handleRemoveGroups}>
+            <AssetGroupSelector
+              empty_message="No hay rodeos asignados para quitar."
+              groups={geofenceDetail.asset_groups_assigned}
+              on_change={setSelectedAssignedGroupIds}
+              selected_ids={selected_assigned_group_ids}
+              title="Quitar rodeos"
+            />
+
+            {removeAssetGroups.isError ? (
+              <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-brand-danger">
+                {removeAssetGroups.error.message}
+              </p>
+            ) : null}
+
+            <Button
+              disabled={selected_assigned_group_ids.length === 0 || removeAssetGroups.isPending}
+              type="submit"
+              variant="secondary"
+            >
+              {removeAssetGroups.isPending ? 'Quitando...' : 'Quitar rodeos seleccionados'}
+            </Button>
+          </form>
+        </div>
+
+        <div className="space-y-4 rounded-2xl border border-brand-border bg-white p-4">
+          <div>
+            <h4 className="text-base font-semibold text-brand-text">Assets efectivos</h4>
+            <p className="mt-1 text-sm text-brand-muted">
+              Cobertura real que resulta de assets directos y miembros que llegan por rodeos.
+            </p>
+          </div>
+
+          {geofenceDetail.assets_assigned_effective.length === 0 ? (
+            <EmptyState
+              title="Sin assets efectivos"
+              message="Esta geocerca todavia no cubre assets activos por asignacion directa o rodeos."
+            />
+          ) : (
+            <div className="max-h-[32rem] space-y-3 overflow-y-auto pr-1">
+              {geofenceDetail.assets_assigned_effective.map((asset) => {
+                const fallbackDevice = (devices.data ?? []).find(
+                  (device) => device.asset_id === asset.asset_id,
+                );
+                const fallbackAssetName = fallbackDevice?.asset_name ?? null;
+
+                return (
+                  <div
+                    className="rounded-2xl border border-brand-border bg-brand-surfaceSoft p-4"
+                    key={asset.asset_id}
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-brand-text">
+                        {getAssetLabel(asset, fallbackAssetName)}
+                      </p>
+                      {asset.asset_type ? <StatusBadge label={asset.asset_type} /> : null}
+                    </div>
+                    {asset.device_id ? (
+                      <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+                        <Link
+                          className="font-semibold text-brand-primary hover:underline"
+                          to={`/app/devices/${asset.device_id}`}
+                        >
+                          {asset.device_serial || asset.device_name || 'Sin serial'}
+                        </Link>
+                        <DeviceStateBadge state={asset.device_state || 'unknown'} />
+                        {typeof asset.device_active === 'boolean' ? (
+                          <StatusBadge
+                            label={asset.device_active ? 'Activo' : 'Inactivo'}
+                            tone={asset.device_active ? 'success' : 'default'}
+                          />
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

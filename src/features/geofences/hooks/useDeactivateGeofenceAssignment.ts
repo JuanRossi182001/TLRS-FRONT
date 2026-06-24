@@ -14,6 +14,7 @@ export function useDeactivateGeofenceAssignment() {
     mutationFn: ({ assignment_id }) => deactivateGeofenceAssignment(assignment_id),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['geofences', variables.geofence_id, 'assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['geofences', variables.geofence_id, 'detail'] });
       queryClient.invalidateQueries({ queryKey: ['geofences', 'my-geofences'] });
     },
   });

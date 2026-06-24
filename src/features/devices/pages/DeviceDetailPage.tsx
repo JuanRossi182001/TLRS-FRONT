@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { Card, EmptyState, ErrorState, LoadingState, PageHeader, StatusBadge } from '../../../shared/components';
 import { DeviceStateBadge } from '../components/DeviceStateBadge';
 import { useMyDevices } from '../hooks/useMyDevices';
+import { getDeviceAssetName } from '../types/device.types';
 
 export function DeviceDetailPage() {
   const { deviceId } = useParams<{ deviceId: string }>();
@@ -9,6 +10,7 @@ export function DeviceDetailPage() {
   const { data, isError, isLoading, error } = useMyDevices();
   const devices = data?.items ?? [];
   const device = devices.find((item) => item.idDevice === idDevice);
+  const assetLabel = device ? getDeviceAssetName(device, device.name) : null;
 
   if (isLoading) {
     return <LoadingState message="Cargando dispositivo..." />;
@@ -49,8 +51,8 @@ export function DeviceDetailPage() {
   return (
     <section className="space-y-6">
       <PageHeader
-        title={device.name}
-        description="Detalle del device devuelto por /devices/my-devices."
+        title={assetLabel}
+        description={`Serial ${device.serial}`}
         actions={<DeviceStateBadge state={device.state} />}
       />
 
@@ -93,8 +95,8 @@ export function DeviceDetailPage() {
             <dd className="mt-1 text-brand-text">{device.clientId ?? 'Sin client'}</dd>
           </div>
           <div className="rounded-2xl bg-brand-surfaceSoft p-4">
-            <dt className="font-medium text-brand-muted">Asset ID</dt>
-            <dd className="mt-1 text-brand-text">{device.assetId ?? 'Sin asset'}</dd>
+            <dt className="font-medium text-brand-muted">Asset</dt>
+            <dd className="mt-1 text-brand-text">{assetLabel}</dd>
           </div>
         </dl>
       </Card>
