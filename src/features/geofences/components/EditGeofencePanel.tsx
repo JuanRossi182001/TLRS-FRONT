@@ -4,12 +4,14 @@ import { Button, Card } from '../../../shared/components';
 import { useUpdateGeofence } from '../hooks/useUpdateGeofence';
 import type { GeoFenceRead, Position } from '../types/geofence.types';
 import { buildShapeFromDraftPoints } from '../utils/geofenceShape';
+import { GeofencePanelHeader } from './GeofencePanelHeader';
 
 type EditGeofencePanelProps = {
   geofence: GeoFenceRead;
   draft_points: Position[];
   on_cancel: () => void;
   on_updated: () => void;
+  mode?: 'desktop' | 'mobile';
 };
 
 function getErrorMessage(error: unknown) {
@@ -21,6 +23,7 @@ export function EditGeofencePanel({
   draft_points,
   on_cancel,
   on_updated,
+  mode = 'desktop',
 }: EditGeofencePanelProps) {
   const [name, setName] = useState(geofence.name);
   const [description, setDescription] = useState(geofence.description ?? '');
@@ -61,12 +64,12 @@ export function EditGeofencePanel({
 
   return (
     <Card className="border-brand-primary/20 bg-brand-surface/95 shadow-xl shadow-brand-primary/10">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold text-brand-text">Editar geocerca</h2>
-        <p className="text-sm leading-6 text-brand-muted">
-          Redibuja la geocerca desde el mapa moviendo, eliminando o agregando vertices.
-        </p>
-      </div>
+      <GeofencePanelHeader
+        description="Redibuja la geocerca desde el mapa moviendo, eliminando o agregando vertices."
+        mode={mode}
+        points_count={draft_points.length}
+        title="Editar geocerca"
+      />
 
       <form className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr_auto]" onSubmit={handleSubmit}>
         <label className="text-sm font-semibold text-brand-text">

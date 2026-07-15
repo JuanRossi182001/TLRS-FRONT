@@ -210,7 +210,7 @@ export function RodeoDetailPage() {
   }
 
   return (
-    <section className="space-y-5 xl:space-y-4">
+    <section className="space-y-4 xl:space-y-3">
       <PageHeader
         title={currentRodeo.name}
         description="Detalle del rodeo, sus miembros y acciones rapidas de mantenimiento."
@@ -243,25 +243,25 @@ export function RodeoDetailPage() {
         </p>
       ) : null}
 
-      <Card className="space-y-6">
-        <div className="grid gap-4 text-sm sm:grid-cols-2 xl:grid-cols-5">
-          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+      <Card className="space-y-5 xl:space-y-4">
+        <div className="grid gap-3 text-sm sm:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-2xl bg-brand-surfaceSoft p-3 xl:p-4">
             <dt className="font-medium text-brand-muted">ID</dt>
             <dd className="mt-1 text-brand-text">{currentRodeo.id_asset_group}</dd>
           </div>
-          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+          <div className="rounded-2xl bg-brand-surfaceSoft p-3 xl:p-4">
             <dt className="font-medium text-brand-muted">Descripcion</dt>
             <dd className="mt-1 text-brand-text">{currentRodeo.description || 'Sin descripcion'}</dd>
           </div>
-          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+          <div className="rounded-2xl bg-brand-surfaceSoft p-3 xl:p-4">
             <dt className="font-medium text-brand-muted">Animales</dt>
             <dd className="mt-1 text-brand-text">{currentRodeo.total_assets}</dd>
           </div>
-          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+          <div className="rounded-2xl bg-brand-surfaceSoft p-3 xl:p-4">
             <dt className="font-medium text-brand-muted">Creado</dt>
             <dd className="mt-1 text-brand-text">{formatArgentinaDateTime(currentRodeo.created_at)}</dd>
           </div>
-          <div className="rounded-2xl bg-brand-surfaceSoft p-4">
+          <div className="rounded-2xl bg-brand-surfaceSoft p-3 xl:p-4">
             <dt className="font-medium text-brand-muted">Actualizado</dt>
             <dd className="mt-1 text-brand-text">{formatArgentinaDateTime(currentRodeo.updated_at)}</dd>
           </div>
@@ -269,7 +269,7 @@ export function RodeoDetailPage() {
       </Card>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <Card className="space-y-4">
+        <Card className="space-y-3 xl:space-y-4">
           <div>
             <h2 className="text-xl font-semibold text-brand-text">Editar rodeo</h2>
             <p className="mt-1 text-sm leading-6 text-brand-muted">
@@ -277,11 +277,11 @@ export function RodeoDetailPage() {
             </p>
           </div>
 
-          <form className="space-y-4" onSubmit={handleUpdate}>
+          <form className="space-y-3 xl:space-y-4" onSubmit={handleUpdate}>
             <label className="block text-sm font-semibold text-brand-text">
               Nombre
               <input
-                className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+                className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
                 maxLength={255}
                 onChange={(event) => setName(event.target.value)}
                 value={name}
@@ -291,7 +291,7 @@ export function RodeoDetailPage() {
             <label className="block text-sm font-semibold text-brand-text">
               Descripcion
               <textarea
-                className="mt-2 min-h-24 w-full rounded-2xl border border-brand-border bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+                className="mt-2 min-h-20 w-full rounded-2xl border border-brand-border bg-white px-4 py-2.5 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
                 onChange={(event) => setDescription(event.target.value)}
                 value={description}
               />
@@ -328,7 +328,7 @@ export function RodeoDetailPage() {
           </form>
         </Card>
 
-        <Card className="space-y-4">
+        <Card className="space-y-3 xl:space-y-4">
           <div>
             <h2 className="text-xl font-semibold text-brand-text">Miembros actuales</h2>
             <p className="mt-1 text-sm leading-6 text-brand-muted">
@@ -388,7 +388,7 @@ export function RodeoDetailPage() {
             </p>
           </div>
 
-          <form className="space-y-4" onSubmit={handleAddMembers}>
+          <form className="space-y-3 xl:space-y-4" onSubmit={handleAddMembers}>
             {assetOptions.isLoading ? <LoadingState message="Cargando assets disponibles..." /> : null}
 
             {assetOptions.isError ? (
@@ -420,7 +420,7 @@ export function RodeoDetailPage() {
           </form>
         </Card>
 
-        <Card className="space-y-4">
+        <Card className="space-y-3 xl:space-y-4">
           <div>
             <h2 className="text-xl font-semibold text-brand-text">Quitar miembros</h2>
             <p className="mt-1 text-sm leading-6 text-brand-muted">
@@ -428,7 +428,7 @@ export function RodeoDetailPage() {
             </p>
           </div>
 
-          <form className="space-y-4" onSubmit={handleRemoveMembers}>
+          <form className="space-y-3 xl:space-y-4" onSubmit={handleRemoveMembers}>
             <RodeoAssetSelector
               empty_message="No hay miembros para quitar."
               on_change={setAssetsToRemove}

@@ -77,7 +77,7 @@ export function GeofenceList({ geofences }: GeofenceListProps) {
   };
 
   return (
-    <div className="space-y-2 xl:space-y-1.5">
+    <div className="flex h-full min-h-0 flex-col space-y-2 xl:space-y-1.5">
       <div className="flex items-center justify-between gap-3 px-1 text-xs font-medium text-brand-muted">
         <span>
           Mostrando {firstVisibleGeofence}-{lastVisibleGeofence} de {geofences.length}
@@ -88,11 +88,11 @@ export function GeofenceList({ geofences }: GeofenceListProps) {
       </div>
 
       <div
-        className="space-y-2 touch-pan-y"
+        className="flex min-h-0 flex-1 flex-col space-y-2 touch-pan-y"
         onTouchEnd={(event) => handleTouchEnd(event.changedTouches[0].clientX)}
         onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)}
       >
-        <div className="relative overflow-hidden rounded-3xl">
+        <div className="relative min-h-0 flex-1 overflow-hidden rounded-3xl">
           <div
             className={[
               'grid gap-3 transition duration-400 ease-out sm:grid-cols-2 xl:grid-cols-1 xl:gap-2',
@@ -115,9 +115,9 @@ export function GeofenceList({ geofences }: GeofenceListProps) {
       </div>
 
       {totalPages > 1 ? (
-        <div className="flex items-center justify-between gap-2">
+        <div className="mt-auto flex min-h-11 items-center justify-between gap-2">
           <Button
-            className="px-3 py-2 text-xs"
+            className="h-10 px-3 py-2 text-xs"
             disabled={!canGoPrevious}
             onClick={goToPreviousPage}
             type="button"
@@ -125,7 +125,7 @@ export function GeofenceList({ geofences }: GeofenceListProps) {
             Anterior
           </Button>
           <Button
-            className="px-3 py-2 text-xs"
+            className="h-10 px-3 py-2 text-xs"
             disabled={!canGoNext}
             onClick={goToNextPage}
             type="button"

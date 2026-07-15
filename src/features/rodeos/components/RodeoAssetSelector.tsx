@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import type { RodeoAssetOption } from '../types/rodeo.types';
 
 function getPrimaryAssetLabel(option: RodeoAssetOption) {
@@ -16,6 +16,7 @@ type RodeoAssetSelectorProps = {
   on_change: (asset_ids: number[]) => void;
   empty_message: string;
   search_placeholder?: string;
+  max_visible_items?: number;
 };
 
 export function RodeoAssetSelector({
@@ -25,8 +26,10 @@ export function RodeoAssetSelector({
   on_change,
   empty_message,
   search_placeholder = 'Buscar por asset, device o serial',
+  max_visible_items,
 }: RodeoAssetSelectorProps) {
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const deferredSearch = useDeferredValue(search);
 
   const filteredOptions = useMemo(() => {
@@ -38,6 +41,27 @@ export function RodeoAssetSelector({
 
     return options.filter((option) => option.search_text.includes(normalizedSearch));
   }, [deferredSearch, options]);
+
+  const pagedOptions = useMemo(() => {
+    if (!max_visible_items || filteredOptions.length <= max_visible_items) {
+      return filteredOptions;
+    }
+
+    const startIndex = (page - 1) * max_visible_items;
+    return filteredOptions.slice(startIndex, startIndex + max_visible_items);
+  }, [filteredOptions, max_visible_items, page]);
+
+  const totalPages = max_visible_items ? Math.ceil(filteredOptions.length / max_visible_items) : 1;
+
+  useEffect(() => {
+    setPage(1);
+  }, [deferredSearch, options.length, max_visible_items]);
+
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   function handleToggle(asset_id: number, checked: boolean) {
     if (checked) {
@@ -67,8 +91,9 @@ export function RodeoAssetSelector({
       {filteredOptions.length === 0 ? (
         <p className="rounded-2xl bg-white px-4 py-3 text-sm text-brand-muted">{empty_message}</p>
       ) : (
-        <div className="grid gap-2 sm:grid-cols-2">
-          {filteredOptions.map((option) => (
+        <>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {pagedOptions.map((option) => (
             <label
               className="flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-3 text-sm text-brand-text"
               key={option.asset_id}
@@ -85,8 +110,35 @@ export function RodeoAssetSelector({
                 <span className="block text-brand-muted">{getSecondaryAssetLabel(option)}</span>
               </span>
             </label>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {max_visible_items && filteredOptions.length > max_visible_items ? (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-brand-border bg-brand-surfaceSoft px-3 py-2 text-sm text-brand-muted">
+              <span>
+                Página {page} de {totalPages}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  className="rounded-full border border-brand-border bg-white px-3 py-1.5 font-semibold text-brand-text transition hover:border-brand-primary hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={page === 1}
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  type="button"
+                >
+                  Anterior
+                </button>
+                <button
+                  className="rounded-full border border-brand-border bg-white px-3 py-1.5 font-semibold text-brand-text transition hover:border-brand-primary hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={page === totalPages}
+                  onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                  type="button"
+                >
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </>
       )}
     </div>
   );

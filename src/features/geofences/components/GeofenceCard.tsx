@@ -41,13 +41,13 @@ export function GeofenceCard({ geofence }: GeofenceCardProps) {
   const is_toggling_activation = setGeofenceActivation.isPending;
 
   return (
-    <Card className="space-y-4 p-5 xl:space-y-3 xl:p-4">
+    <Card className="space-y-3.5 p-4 xl:space-y-3 xl:p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className="truncate text-xl font-semibold text-brand-text xl:text-lg">
+          <h2 className="truncate text-lg font-semibold text-brand-text xl:text-lg">
             {geofence.name}
           </h2>
-          <p className="mt-1 text-sm leading-6 text-brand-muted xl:text-xs xl:leading-5">
+          <p className="mt-1 text-sm leading-5 text-brand-muted xl:text-xs xl:leading-5">
             {geofence.description || 'Sin descripcion'}
           </p>
         </div>
@@ -55,11 +55,11 @@ export function GeofenceCard({ geofence }: GeofenceCardProps) {
       </div>
 
       <div className="grid gap-2 text-sm text-brand-muted sm:grid-cols-2 xl:text-xs">
-        <div className="rounded-2xl bg-brand-surfaceSoft p-4 xl:p-3">
+        <div className="rounded-2xl bg-brand-surfaceSoft p-3 xl:p-3">
           <span className="font-semibold text-brand-text">Creada</span>
           <p className="mt-1">{formatArgentinaDateTime(geofence.created_at)}</p>
         </div>
-        <div className="rounded-2xl bg-brand-surfaceSoft p-4 xl:p-3">
+        <div className="rounded-2xl bg-brand-surfaceSoft p-3 xl:p-3">
           <span className="font-semibold text-brand-text">Actualizada</span>
           <p className="mt-1">{formatArgentinaDateTime(geofence.updated_at)}</p>
         </div>
