@@ -15,3 +15,24 @@ export type DeviceLatestLocation = {
   device_timestamp: string | null;
   received_at: string;
 };
+
+export type WebSocketTicketResponse = {
+  ticket: string;
+  expires_in: number;
+};
+
+export type DeviceLocationUpdatedEvent = {
+  version: number;
+  type: 'device.location.updated';
+  data: {
+    location_id: number;
+    client_id: number;
+    device_id: number;
+    device_serial: string;
+    latitude: number;
+    longitude: number;
+    altitude: number | null;
+    accuracy: number | null;
+    recorded_at: string;
+  };
+};

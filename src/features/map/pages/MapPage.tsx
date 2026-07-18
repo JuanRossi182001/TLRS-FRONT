@@ -49,6 +49,7 @@ export function MapPage() {
           <TrackingMap
             devices={devices}
             draftPoints={draftPoints}
+            editingGeofenceId={editingGeofence?.id_geofence}
             geofences={geofences}
             geofenceStates={geofenceStates}
             isDrawingGeofence={isDrawingGeofence}

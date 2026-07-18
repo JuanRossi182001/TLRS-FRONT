@@ -1,3 +1,14 @@
+export type RodeoGeofenceAssignment = {
+  id_geofence_asset_group: number;
+  geofence_id: number;
+  geofence_name: string;
+  geofence_description: string | null;
+  geofence_active: boolean;
+  assignment_active: boolean;
+  assigned_at: string;
+  unassigned_at: string | null;
+};
+
 export type RodeoSummary = {
   id_asset_group: number;
   client_id: number;
@@ -5,6 +16,7 @@ export type RodeoSummary = {
   description: string | null;
   active: boolean;
   total_assets: number;
+  geofences_assigned?: RodeoGeofenceAssignment[];
   created_at: string;
   updated_at: string;
 };

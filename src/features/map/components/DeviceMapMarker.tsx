@@ -1,28 +1,19 @@
 import { RadioTower } from 'lucide-react';
 import { getDeviceAssetName } from '../../devices/types/device.types';
-import type { GeoFenceAssetState } from '../../geofences/types/geofenceState.types';
-import { getGeofenceStatusUi } from '../../geofences/utils/geofenceStatusUi';
 import type { DeviceLatestLocation } from '../types/map.types';
 
 type DeviceMapMarkerProps = {
   device: DeviceLatestLocation;
-  geofenceState?: GeoFenceAssetState;
   isSelected: boolean;
   onClick: () => void;
 };
 
 export function DeviceMapMarker({
   device,
-  geofenceState,
   isSelected,
   onClick,
 }: DeviceMapMarkerProps) {
   const assetLabel = getDeviceAssetName(device, device.serial);
-  const statusClassName = geofenceState
-    ? getGeofenceStatusUi(geofenceState.current_status).markerClassName
-    : device.active
-      ? 'bg-brand-success ring-emerald-100'
-      : 'bg-brand-muted ring-white';
 
   return (
     <button
@@ -33,12 +24,11 @@ export function DeviceMapMarker({
         onClick();
       }}
       className={[
-        'flex h-11 w-11 items-center justify-center rounded-full text-white shadow-xl ring-4 transition',
-        statusClassName,
-        isSelected ? 'scale-110' : 'hover:scale-105',
+        'flex h-8 w-8 items-center justify-center rounded-full bg-brand-accent text-brand-primary shadow-md ring-2 ring-brand-accentDark/20 transition',
+        isSelected ? 'scale-105 shadow-lg ring-brand-accentDark/35' : 'hover:scale-[1.02]',
       ].join(' ')}
     >
-      <RadioTower className="h-5 w-5" aria-hidden="true" />
+      <RadioTower className="h-4 w-4" aria-hidden="true" />
     </button>
   );
 }

@@ -6,7 +6,7 @@ import type { GeoFenceAssetState } from '../types/geofenceState.types';
 import { getGeofenceStatusUi } from '../utils/geofenceStatusUi';
 import { GeofenceStatusBadge } from './GeofenceStatusBadge';
 
-const geofenceStatesPageLimit = 4;
+const geofenceStatesPageLimit = 6;
 type PageTransitionDirection = 'next' | 'previous' | null;
 
 function sortStates(states: GeoFenceAssetState[]) {

@@ -15,9 +15,19 @@ type TokenResponse = {
   token_type?: string;
 };
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 let refreshPromise: Promise<string | null> | null = null;
 
-function getApiBaseUrl() {
+export function getApiBaseUrl() {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
   if (!baseUrl) {
@@ -49,6 +59,10 @@ async function getErrorMessage(response: Response) {
   } catch {
     return fallback;
   }
+}
+
+async function createApiError(response: Response) {
+  return new ApiError(response.status, await getErrorMessage(response));
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {
@@ -130,7 +144,11 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
       const retryResponse = await request(path, options);
 
       if (!retryResponse.ok) {
-        throw new Error(await getErrorMessage(retryResponse));
+        if (retryResponse.status === 401) {
+          clearAccessToken();
+        }
+
+        throw await createApiError(retryResponse);
       }
 
       return parseResponse<T>(retryResponse);
@@ -138,7 +156,7 @@ export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): 
   }
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response));
+    throw await createApiError(response);
   }
 
   return parseResponse<T>(response);

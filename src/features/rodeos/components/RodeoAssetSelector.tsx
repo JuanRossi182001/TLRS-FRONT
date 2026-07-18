@@ -73,8 +73,8 @@ export function RodeoAssetSelector({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-2 md:space-y-2.5">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between md:gap-2">
         <h3 className="text-sm font-semibold text-brand-text">{title}</h3>
         <span className="text-xs font-medium text-brand-muted">
           {selected_asset_ids.length} seleccionados
@@ -82,20 +82,20 @@ export function RodeoAssetSelector({
       </div>
 
       <input
-        className="w-full rounded-2xl border border-brand-border bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+        className="w-full rounded-2xl border border-brand-border bg-white px-3 py-2.5 text-xs outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 md:px-3 md:py-2.5 md:text-[13px]"
         onChange={(event) => setSearch(event.target.value)}
         placeholder={search_placeholder}
         value={search}
       />
 
       {filteredOptions.length === 0 ? (
-        <p className="rounded-2xl bg-white px-4 py-3 text-sm text-brand-muted">{empty_message}</p>
+        <p className="rounded-2xl bg-white px-3 py-2.5 text-xs text-brand-muted md:px-4 md:py-3 md:text-sm">{empty_message}</p>
       ) : (
         <>
           <div className="grid gap-2 sm:grid-cols-2">
             {pagedOptions.map((option) => (
             <label
-              className="flex items-start gap-3 rounded-2xl border border-brand-border bg-white p-3 text-sm text-brand-text"
+              className="flex items-start gap-2.5 rounded-2xl border border-brand-border bg-white p-2.5 text-xs text-brand-text md:gap-2.5 md:p-2.5 md:text-[13px]"
               key={option.asset_id}
             >
               <input
@@ -114,13 +114,13 @@ export function RodeoAssetSelector({
           </div>
 
           {max_visible_items && filteredOptions.length > max_visible_items ? (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-brand-border bg-brand-surfaceSoft px-3 py-2 text-sm text-brand-muted">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-brand-border bg-brand-surfaceSoft px-3 py-2 text-xs text-brand-muted md:text-[13px]">
               <span>
                 Página {page} de {totalPages}
               </span>
               <div className="flex items-center gap-2">
                 <button
-                  className="rounded-full border border-brand-border bg-white px-3 py-1.5 font-semibold text-brand-text transition hover:border-brand-primary hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-full border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-brand-text transition hover:border-brand-primary hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                   disabled={page === 1}
                   onClick={() => setPage((current) => Math.max(1, current - 1))}
                   type="button"
@@ -128,7 +128,7 @@ export function RodeoAssetSelector({
                   Anterior
                 </button>
                 <button
-                  className="rounded-full border border-brand-border bg-white px-3 py-1.5 font-semibold text-brand-text transition hover:border-brand-primary hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-full border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-brand-text transition hover:border-brand-primary hover:text-brand-primary disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                   disabled={page === totalPages}
                   onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                   type="button"

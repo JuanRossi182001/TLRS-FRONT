@@ -1,5 +1,6 @@
-import { Cpu, Map, Pencil, Power, PowerOff } from 'lucide-react';
-import { useState } from 'react';
+import { Cpu, Map, Pencil, Power, PowerOff, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { Button, Card } from '../../../shared/components';
 import { formatArgentinaDateTime } from '../../../shared/utils/dateTime';
@@ -20,6 +21,28 @@ export function GeofenceCard({ geofence }: GeofenceCardProps) {
   const [is_managing_devices, setIsManagingDevices] = useState(false);
   const [error_message, setErrorMessage] = useState<string | null>(null);
   const setGeofenceActivation = useSetGeofenceActivation();
+
+  useEffect(() => {
+    if (!is_managing_devices) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsManagingDevices(false);
+      }
+    }
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [is_managing_devices]);
 
   function resetForm() {
     setErrorMessage(null);
@@ -116,10 +139,51 @@ export function GeofenceCard({ geofence }: GeofenceCardProps) {
         </p>
       ) : null}
 
-      <GeofenceAssignmentManager
-        geofence_id={geofence.id_geofence}
-        is_open={is_managing_devices}
-      />
+      {is_managing_devices && typeof document !== 'undefined'
+        ? createPortal(
+            <div
+              className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 p-2 backdrop-blur-sm md:items-center md:p-6"
+              onClick={() => setIsManagingDevices(false)}
+            >
+              <div
+                aria-labelledby={`geofence-assignment-title-${geofence.id_geofence}`}
+                aria-modal="true"
+                className="flex h-[calc(100dvh-0.75rem)] w-full max-w-6xl flex-col overflow-hidden rounded-[1.5rem] border border-brand-border/70 bg-brand-surface shadow-2xl shadow-brand-primary/20 md:h-auto md:max-h-[94dvh] md:max-w-[92rem] md:rounded-[2rem]"
+                onClick={(event) => event.stopPropagation()}
+                role="dialog"
+              >
+                <div className="flex items-start justify-between gap-3 border-b border-brand-border/70 px-3 py-3 md:gap-4 md:px-5 md:py-3.5">
+                  <div className="min-w-0">
+                    <h3
+                      className="text-base font-semibold text-brand-text md:text-[1.05rem]"
+                      id={`geofence-assignment-title-${geofence.id_geofence}`}
+                    >
+                      Gestionar alcance
+                    </h3>
+                    <p className="mt-0.5 truncate text-xs text-brand-muted md:text-[13px]">{geofence.name}</p>
+                  </div>
+
+                  <button
+                    aria-label="Cerrar gestion de alcance"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-brand-border/70 text-brand-muted transition hover:bg-brand-surfaceSoft hover:text-brand-text md:h-9 md:w-9"
+                    onClick={() => setIsManagingDevices(false)}
+                    type="button"
+                  >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </div>
+
+                <div className="min-h-0 flex-1 overflow-y-auto p-3 md:p-5">
+                  <GeofenceAssignmentManager
+                    geofence_id={geofence.id_geofence}
+                    is_open={is_managing_devices}
+                  />
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </Card>
   );
 }

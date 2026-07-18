@@ -39,6 +39,14 @@ export type GeoFenceAssignedAssetGroup = {
   total_assets?: number;
   created_at?: string;
   updated_at?: string;
+  asset_group_id?: number;
+  asset_group_name?: string;
+  asset_group_description?: string | null;
+  asset_group_active?: boolean;
+  assignment_active?: boolean;
+  assigned_at?: string;
+  unassigned_at?: string | null;
+  id_geofence_asset_group?: number;
 };
 
 export type GeoFenceDetailRead = GeoFenceRead & {
