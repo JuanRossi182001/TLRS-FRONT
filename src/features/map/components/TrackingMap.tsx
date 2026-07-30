@@ -12,6 +12,7 @@ import { MapDeviceBottomSheet } from './MapDeviceBottomSheet';
 
 type TrackingMapProps = {
   devices: DeviceLatestLocation[];
+  isMobileLayout?: boolean;
   editingGeofenceId?: number;
   geofences?: GeoFenceRead[];
   geofenceStates?: GeoFenceAssetState[];
@@ -57,6 +58,7 @@ const mapStyle: StyleSpecification = {
 
 export function TrackingMap({
   devices,
+  isMobileLayout = false,
   editingGeofenceId,
   geofences = [],
   geofenceStates = [],
@@ -228,7 +230,14 @@ export function TrackingMap({
   }, [isDrawingGeofence, isMapLoaded, selectedDeviceId]);
 
   return (
-    <div className="relative min-h-0 flex-1 overflow-hidden rounded-[2rem] border border-brand-border/70 bg-brand-surface shadow-xl shadow-brand-primary/10">
+    <div
+      className={[
+        'relative min-h-0 flex-1 overflow-hidden bg-brand-surface',
+        isMobileLayout
+          ? 'tracking-map-mobile rounded-none border-0 shadow-none lg:rounded-[2rem] lg:border lg:border-brand-border/70 lg:shadow-xl'
+          : 'rounded-2xl border border-brand-border/70 shadow-lg shadow-brand-primary/10 lg:rounded-[2rem] lg:shadow-xl',
+      ].join(' ')}
+    >
       <Map
         ref={mapRef}
         mapLib={maplibregl}
@@ -247,7 +256,7 @@ export function TrackingMap({
         }}
         onLoad={() => setIsMapLoaded(true)}
       >
-        <NavigationControl position="top-right" />
+        <NavigationControl position={isMobileLayout ? 'bottom-right' : 'top-right'} />
 
         <GeofenceLayer geofences={geofences} />
         <GeofenceDraftLayer

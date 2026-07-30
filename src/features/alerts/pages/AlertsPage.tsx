@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, ErrorState, LoadingState, PageHeader, StatusBadge } from '../../../shared/components';
+import { Button, ErrorState, LoadingState, MobilePaginationControls, PageHeader, ResponsiveDialog, StatusBadge } from '../../../shared/components';
 import { getUtcTimestampTime } from '../../../shared/utils/dateTime';
 import { AlertEmptyState } from '../components/AlertEmptyState';
 import { AlertEventList } from '../components/AlertEventList';
@@ -43,6 +43,7 @@ export function AlertsPage() {
   const [timeFilter, setTimeFilter] = useState<AlertTimeFilter>('today');
   const [relevanceFilter, setRelevanceFilter] = useState<AlertRelevanceFilter>('all');
   const [eventTypeFilter, setEventTypeFilter] = useState<EventTypeFilterValue>('all');
+  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState(false);
   const visibleEventTypeOptions = relevanceFilter === 'important_only'
     ? importantEventTypeOptions
     : eventTypeOptions;
@@ -152,9 +153,46 @@ export function AlertsPage() {
     setSkip(0);
     setPageTransitionDirection(null);
   };
+  const selectedTimeLabel = timeFilterOptions.find((option) => option.value === timeFilter)?.label ?? 'Periodo';
+  const selectedRelevanceLabel = relevanceFilterOptions.find((option) => option.value === relevanceFilter)?.label ?? 'Relevancia';
+  const selectedEventTypeLabel = visibleEventTypeOptions.find((option) => option.value === eventTypeFilter)?.label ?? 'Tipo';
+  const filterControls = (
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1fr_1fr_16rem] xl:items-end xl:gap-4">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Periodo</p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {timeFilterOptions.map((option) => (
+            <Button className="px-3 py-1.5 text-xs" key={option.value} onClick={() => handleTimeFilterChange(option.value)} variant={timeFilter === option.value ? 'primary' : 'secondary'}>
+              {option.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Relevancia</p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {relevanceFilterOptions.map((option) => (
+            <Button className="px-3 py-1.5 text-xs" key={option.value} onClick={() => handleRelevanceFilterChange(option.value)} variant={relevanceFilter === option.value ? 'primary' : 'secondary'}>
+              {option.label}
+            </Button>
+          ))}
+        </div>
+      </div>
+      <label className="text-sm font-semibold text-brand-text">
+        Tipo de evento
+        <select
+          className="mt-2 min-h-10 w-full rounded-2xl border border-brand-border bg-white px-3 py-2 text-sm text-brand-text outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+          onChange={(event) => handleEventTypeFilterChange(event.target.value as EventTypeFilterValue)}
+          value={eventTypeFilter}
+        >
+          {visibleEventTypeOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        </select>
+      </label>
+    </div>
+  );
 
   return (
-    <section className="space-y-5 xl:space-y-3">
+    <section className="space-y-4 lg:space-y-5 xl:space-y-3">
       <PageHeader
         title={(
           <span className="flex items-center gap-2">
@@ -180,7 +218,7 @@ export function AlertsPage() {
         description="Eventos generados por tus geocercas, dispositivos y assets asociados."
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge label="Actualizacion automatica cada 30s" />
+            <span className="text-xs font-medium text-brand-muted">Actualiza cada 30s</span>
             <Button disabled={isFetching} onClick={() => refetch()} type="button">
               {isFetching ? 'Actualizando...' : 'Actualizar'}
             </Button>
@@ -188,69 +226,16 @@ export function AlertsPage() {
         }
       />
 
-      <div className="grid gap-3 rounded-3xl border border-brand-border/60 bg-brand-surface p-4 shadow-sm shadow-brand-primary/5 xl:grid-cols-[1fr_1fr_16rem] xl:items-end xl:gap-4 xl:p-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Periodo</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {timeFilterOptions.map((option) => (
-              <Button
-                className="px-3 py-1.5 text-xs"
-                key={option.value}
-                onClick={() => handleTimeFilterChange(option.value)}
-                variant={timeFilter === option.value ? 'primary' : 'secondary'}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">Relevancia</p>
-            <div className="group relative">
-              <button
-                aria-label="Explicacion del filtro importantes"
-                className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-brand-border/70 bg-white text-[11px] font-semibold text-brand-muted transition hover:border-brand-primary hover:text-brand-primary focus:border-brand-primary focus:text-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/15"
-                type="button"
-              >
-                i
-              </button>
-              <div className="pointer-events-none absolute left-0 top-7 z-10 w-56 rounded-2xl bg-brand-text px-3 py-2 text-[11px] font-medium leading-4 text-white opacity-0 shadow-lg shadow-brand-text/15 transition group-hover:opacity-100 group-focus-within:opacity-100">
-                Importantes muestra solo las alertas de salida y cerca del limite.
-              </div>
-            </div>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {relevanceFilterOptions.map((option) => (
-              <Button
-                className="px-3 py-1.5 text-xs"
-                key={option.value}
-                onClick={() => handleRelevanceFilterChange(option.value)}
-                variant={relevanceFilter === option.value ? 'primary' : 'secondary'}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        <label className="text-sm font-semibold text-brand-text" htmlFor="alerts-event-type-filter">
-          Tipo de evento
-          <select
-            className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-4 py-3 text-sm text-brand-text outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
-            id="alerts-event-type-filter"
-            onChange={(event) => handleEventTypeFilterChange(event.target.value as EventTypeFilterValue)}
-            value={eventTypeFilter}
-          >
-            {visibleEventTypeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="flex flex-wrap gap-2 md:hidden">
+        <Button onClick={() => setIsFilterDialogOpen(true)} type="button" variant="secondary">Filtros</Button>
+        <StatusBadge label={selectedTimeLabel} />
+        <StatusBadge label={selectedRelevanceLabel} />
+        {eventTypeFilter !== 'all' ? <StatusBadge label={selectedEventTypeLabel} /> : null}
       </div>
+      <div className="hidden rounded-3xl border border-brand-border/60 bg-brand-surface p-4 shadow-sm shadow-brand-primary/5 md:block xl:p-3">{filterControls}</div>
+      <ResponsiveDialog footer={<Button className="w-full md:w-auto" onClick={() => setIsFilterDialogOpen(false)}>Listo</Button>} isOpen={isFilterDialogOpen} onClose={() => setIsFilterDialogOpen(false)} title="Filtros de alertas">
+        {filterControls}
+      </ResponsiveDialog>
 
       {isLoading ? <LoadingState message="Cargando eventos de geocercas..." /> : null}
 
@@ -291,6 +276,16 @@ export function AlertsPage() {
                   Pagina {currentPage} de {totalPages}
                 </span>
               </div>
+
+              {totalPages > 1 ? (
+                <MobilePaginationControls
+                  canGoNext={canGoNext}
+                  canGoPrevious={canGoPrevious}
+                  isLoading={isFetching}
+                  onNext={goToNextPage}
+                  onPrevious={goToPreviousPage}
+                />
+              ) : null}
 
               <div className="relative overflow-hidden rounded-3xl">
                 <div

@@ -23,6 +23,9 @@ export default {
           danger: '#dc2626',
         },
       },
+      transitionDuration: {
+        400: '400ms',
+      },
     },
   },
   plugins: [],

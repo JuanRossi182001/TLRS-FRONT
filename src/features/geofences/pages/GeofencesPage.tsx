@@ -12,7 +12,7 @@ export function GeofencesPage() {
   const geofenceCount = geofences.length;
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-4 xl:gap-4">
+    <section className="flex min-h-0 flex-1 flex-col gap-3 lg:gap-4 xl:gap-4">
       <PageHeader
         title="Geocercas"
         description="Administra areas de contencion para tus assets y rodeos. La creacion visual se realiza desde el mapa."
@@ -20,7 +20,7 @@ export function GeofencesPage() {
           <>
             <StatusBadge label={`${geofenceCount} geocercas`} />
             <Link
-              className="inline-flex rounded-full bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primaryDark hover:shadow-md"
+              className="inline-flex min-h-10 items-center rounded-2xl bg-brand-primary px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primaryDark hover:shadow-md lg:rounded-full lg:px-5 lg:py-2.5"
               to="/app/map"
             >
               Crear geocerca en el mapa
@@ -69,14 +69,7 @@ export function GeofencesPage() {
             </div>
 
             {mobile_view === 'geofences' ? (
-              <div className="space-y-4 rounded-3xl border border-brand-primary/20 bg-brand-surface/95 p-4 shadow-xl shadow-brand-primary/10">
-                <div className="space-y-1">
-                  <h2 className="text-lg font-semibold text-brand-text">Geocercas</h2>
-                  <p className="text-sm leading-6 text-brand-muted">
-                    Administra tus areas de contencion y accede rapido a editar o ver cada una.
-                  </p>
-                </div>
-
+              <div className="space-y-3">
                 {geofences.length === 0 ? (
                   <EmptyState
                     title="No hay geocercas registradas"
@@ -89,14 +82,7 @@ export function GeofencesPage() {
             ) : null}
 
             {mobile_view === 'states' ? (
-              <div className="space-y-4 rounded-3xl border border-brand-border/70 bg-brand-surface/95 p-4 shadow-xl shadow-brand-primary/5">
-                <div className="space-y-1">
-                  <h2 className="text-lg font-semibold text-brand-text">Estados actuales</h2>
-                  <p className="text-sm leading-6 text-brand-muted">
-                    Estado de cada asset respecto de sus geocercas asignadas.
-                  </p>
-                </div>
-
+              <div className="space-y-3">
                 <GeofenceStatesList />
               </div>
             ) : null}

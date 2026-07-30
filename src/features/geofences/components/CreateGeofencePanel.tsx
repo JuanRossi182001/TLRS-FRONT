@@ -206,7 +206,13 @@ export function CreateGeofencePanel({
   }
 
   return (
-    <Card className="border-brand-primary/20 bg-brand-surface/95 shadow-xl shadow-brand-primary/10">
+    <Card
+      className={[
+        'border-brand-primary/20 bg-brand-surface/95 shadow-xl shadow-brand-primary/10',
+        is_mobile ? 'rounded-[1.75rem] border-brand-border/70 shadow-2xl shadow-brand-primary/20 backdrop-blur-xl' : '',
+      ].join(' ')}
+    >
+      {is_mobile ? <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-brand-border" aria-hidden="true" /> : null}
       <GeofencePanelHeader
         description={
           is_mobile

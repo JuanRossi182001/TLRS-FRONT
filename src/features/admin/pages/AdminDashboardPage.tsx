@@ -44,13 +44,13 @@ export function AdminDashboardPage() {
   }
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-4 lg:space-y-6">
       <AdminPageHeader
         title="Panel admin"
         description="Vista interna para monitorear el estado general de la plataforma Manea."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
         <AdminStatCard label="Total dispositivos" value={stats.devices_data.all_devices} tone="accent" />
         <AdminStatCard label="Dispositivos activos" value={stats.devices_data.active_devices} tone="accent" />
         <AdminStatCard label="Dispositivos inactivos" value={stats.devices_data.inactive_devices} />
@@ -60,40 +60,44 @@ export function AdminDashboardPage() {
         <AdminStatCard label="Usuarios" value={stats.users_data} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-5">
         {geofenceStatuses.map((status) => (
-          <Card key={status} className="space-y-3">
+          <Card key={status} className="space-y-1.5 p-3 lg:space-y-3">
             <GeofenceStatusBadge current_status={status} />
-            <p className="text-3xl font-semibold text-brand-text">{geofenceStatusCounts[status] ?? 0}</p>
-            <p className="text-sm text-brand-muted">dispositivos</p>
+            <p className="text-xl font-semibold text-brand-text lg:text-3xl">{geofenceStatusCounts[status] ?? 0}</p>
+            <p className="text-xs text-brand-muted lg:text-sm">dispositivos</p>
           </Card>
         ))}
         {hasUnknownStatus ? (
-          <Card className="space-y-3">
+          <Card className="space-y-1.5 p-3 lg:space-y-3">
             <GeofenceStatusBadge current_status={null} />
-            <p className="text-3xl font-semibold text-brand-text">{geofenceStatusCounts.UNKNOWN}</p>
-            <p className="text-sm text-brand-muted">dispositivos</p>
+            <p className="text-xl font-semibold text-brand-text lg:text-3xl">{geofenceStatusCounts.UNKNOWN}</p>
+            <p className="text-xs text-brand-muted lg:text-sm">dispositivos</p>
           </Card>
         ) : null}
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-2 lg:grid-cols-3 lg:gap-4">
         <AdminSectionCard
           title="Gestionar dispositivos"
-          description="Administrar altas, estados y asociaciones de dispositivos."
+          description="Provisionar dispositivos ChirpStack y administrar activos asignados."
+          icon={Radio}
           to="/app/admin/devices"
         />
         <AdminSectionCard
           title="Gestionar clientes"
           description="Revisar clientes, usuarios asociados y volumen operativo."
+          icon={Building2}
           to="/app/admin/clients"
         />
         <AdminSectionCard
           title="Gestionar usuarios"
           description="Controlar usuarios, permisos y accesos internos."
+          icon={UsersRound}
           to="/app/admin/users"
         />
       </div>
     </section>
   );
 }
+import { Building2, Radio, UsersRound } from 'lucide-react';

@@ -6,6 +6,8 @@ type GeofenceDrawingControlsProps = {
   on_start: () => void;
   on_cancel: () => void;
   on_clear: () => void;
+  on_continue?: () => void;
+  continue_label?: string;
 };
 
 export function GeofenceDrawingControls({
@@ -14,6 +16,8 @@ export function GeofenceDrawingControls({
   on_start,
   on_cancel,
   on_clear,
+  on_continue,
+  continue_label = 'Continuar',
 }: GeofenceDrawingControlsProps) {
   if (!is_drawing) {
     return (
@@ -31,6 +35,11 @@ export function GeofenceDrawingControls({
       <Button onClick={on_clear} type="button" variant="secondary">
         Limpiar puntos
       </Button>
+      {on_continue && points_count >= 3 ? (
+        <Button onClick={on_continue} type="button">
+          {continue_label}
+        </Button>
+      ) : null}
       <Button onClick={on_cancel} type="button" variant="secondary">
         Cancelar
       </Button>

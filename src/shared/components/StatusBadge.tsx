@@ -16,7 +16,7 @@ export function StatusBadge({ label, tone = 'default' }: StatusBadgeProps) {
   return (
     <span
       className={[
-        'inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset',
+        'inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ring-1 ring-inset lg:px-3 lg:py-1.5 lg:text-xs',
         toneClasses[tone],
       ].join(' ')}
     >

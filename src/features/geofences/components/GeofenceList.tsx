@@ -92,7 +92,7 @@ export function GeofenceList({ geofences }: GeofenceListProps) {
         onTouchEnd={(event) => handleTouchEnd(event.changedTouches[0].clientX)}
         onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)}
       >
-        <div className="relative min-h-0 flex-1 overflow-hidden rounded-3xl">
+        <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl lg:rounded-3xl">
           <div
             className={[
               'grid gap-3 transition duration-400 ease-out sm:grid-cols-2 xl:grid-cols-1 xl:gap-2',

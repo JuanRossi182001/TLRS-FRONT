@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 :root {
+  --app-header-height: 3.75rem;
+  --mobile-nav-height: 4.25rem;
+  --mobile-nav-clearance: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 1rem);
   color: #10201d;
   background: #fbf5dd;
   font-family:
@@ -20,11 +23,40 @@ body {
   background: #fbf5dd;
 }
 
+@media (min-width: 1024px) {
+  :root {
+    --app-header-height: 5rem;
+  }
+}
+
 * {
   box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 2px solid #00453d;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 ::selection {
   background: #ffa02c;
   color: #00453d;
+}
+
+@media (max-width: 1023px) {
+  .tracking-map-mobile .maplibregl-ctrl-bottom-right {
+    bottom: var(--mobile-nav-clearance);
+    right: 0.25rem;
+  }
 }

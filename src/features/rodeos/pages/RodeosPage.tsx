@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
-import { EmptyState, ErrorState, LoadingState, PageHeader, StatusBadge } from '../../../shared/components';
+import { Button, EmptyState, ErrorState, LoadingState, PageHeader, StatusBadge, StickyActionFooter } from '../../../shared/components';
 import { useCreateRodeo } from '../hooks/useCreateRodeo';
 import { useMyRodeos } from '../hooks/useMyRodeos';
 import { useRodeoAssetOptions } from '../hooks/useRodeoAssetOptions';
@@ -17,6 +17,7 @@ export function RodeosPage() {
   const [selected_asset_ids, setSelectedAssetIds] = useState<number[]>([]);
   const [error_message, setErrorMessage] = useState<string | null>(null);
   const [mobile_view, setMobileView] = useState<'create' | 'list'>('create');
+  const [mobile_step, setMobileStep] = useState<'details' | 'members'>('details');
   const { data: rodeos = [], isLoading, isError, error } = useMyRodeos();
   const assetOptions = useRodeoAssetOptions();
   const createRodeo = useCreateRodeo();
@@ -58,7 +59,7 @@ export function RodeosPage() {
   }
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-4 xl:gap-4">
+    <section className="flex min-h-0 flex-1 flex-col gap-3 lg:gap-4 xl:gap-4">
       <PageHeader
         title="Rodeos"
         description="Agrupa assets para asignarlos y gestionarlos como un rodeo dentro del cliente."
@@ -99,54 +100,34 @@ export function RodeosPage() {
         </div>
 
         {mobile_view === 'create' ? (
-          <div className="rounded-3xl border border-brand-primary/20 bg-brand-surface/95 p-4 shadow-xl shadow-brand-primary/10">
+          <div className="rounded-2xl border border-brand-primary/20 bg-brand-surface/95 p-4 shadow-lg shadow-brand-primary/10 lg:rounded-3xl">
             <div className="space-y-1">
               <h2 className="text-lg font-semibold text-brand-text">Nuevo rodeo</h2>
               <p className="text-sm leading-5 text-brand-muted">
-                Define el nombre, una descripcion opcional y selecciona los assets que forman el rodeo.
+                {mobile_step === 'details' ? 'Define los datos basicos del rodeo.' : 'Selecciona los assets que forman el rodeo.'}
               </p>
             </div>
 
-            <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-              <label className="block text-sm font-semibold text-brand-text">
-                Nombre
-                <input
-                  className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
-                  maxLength={255}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Rodeo Norte"
-                  value={name}
-                />
-              </label>
-
-              <label className="block text-sm font-semibold text-brand-text">
-                Descripcion
-                <textarea
-                  className="mt-2 min-h-20 w-full rounded-2xl border border-brand-border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
-                  onChange={(event) => setDescription(event.target.value)}
-                  placeholder="Lote principal"
-                  value={description}
-                />
-              </label>
-
-              {assetOptions.isLoading ? <LoadingState message="Cargando assets disponibles..." /> : null}
-
-              {assetOptions.isError ? (
-                <ErrorState
-                  title="No pudimos cargar los assets"
-                  message={getRodeoErrorMessage(assetOptions.error, 'Intentalo nuevamente.')}
-                />
+            <form className="mt-3 space-y-3" onSubmit={handleSubmit}>
+              {mobile_step === 'details' ? (
+                <>
+                  <label className="block text-sm font-semibold text-brand-text">
+                    Nombre
+                    <input className="mt-2 min-h-11 w-full rounded-2xl border border-brand-border bg-white px-3 py-2 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15" maxLength={255} onChange={(event) => setName(event.target.value)} placeholder="Rodeo Norte" value={name} />
+                  </label>
+                  <label className="block text-sm font-semibold text-brand-text">
+                    Descripcion
+                    <textarea className="mt-2 min-h-[72px] w-full rounded-2xl border border-brand-border bg-white px-3 py-2 text-sm outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15" onChange={(event) => setDescription(event.target.value)} placeholder="Lote principal" value={description} />
+                  </label>
+                </>
               ) : null}
 
-              {!assetOptions.isLoading && !assetOptions.isError ? (
-                <RodeoAssetSelector
-                  empty_message="No encontramos assets con ese criterio."
-                  max_visible_items={6}
-                  on_change={setSelectedAssetIds}
-                  options={assetOptions.data ?? []}
-                  selected_asset_ids={selected_asset_ids}
-                  title="Miembros del rodeo"
-                />
+              {mobile_step === 'members' ? (
+                <>
+                  {assetOptions.isLoading ? <LoadingState message="Cargando assets disponibles..." /> : null}
+                  {assetOptions.isError ? <ErrorState title="No pudimos cargar los assets" message={getRodeoErrorMessage(assetOptions.error, 'Intentalo nuevamente.')} /> : null}
+                  {!assetOptions.isLoading && !assetOptions.isError ? <RodeoAssetSelector empty_message="No encontramos assets con ese criterio." max_visible_items={6} on_change={setSelectedAssetIds} options={assetOptions.data ?? []} selected_asset_ids={selected_asset_ids} title="Miembros del rodeo" /> : null}
+                </>
               ) : null}
 
               {error_message ? (
@@ -155,19 +136,22 @@ export function RodeosPage() {
                 </p>
               ) : null}
 
-              <button
-                className="inline-flex items-center justify-center rounded-full bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-primaryDark hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={!name.trim() || createRodeo.isPending}
-                type="submit"
-              >
-                {createRodeo.isPending ? 'Creando...' : 'Crear rodeo'}
-              </button>
+              <StickyActionFooter>
+                {mobile_step === 'details' ? (
+                  <Button className="w-full" disabled={!name.trim()} onClick={() => setMobileStep('members')} type="button">Seleccionar miembros</Button>
+                ) : (
+                  <div className="flex items-center justify-between gap-3">
+                    <Button onClick={() => setMobileStep('details')} type="button" variant="secondary">Anterior</Button>
+                    <div className="text-right"><p className="text-xs text-brand-muted">{selected_asset_ids.length} seleccionados</p><Button disabled={!name.trim() || createRodeo.isPending} type="submit">{createRodeo.isPending ? 'Creando...' : 'Crear rodeo'}</Button></div>
+                  </div>
+                )}
+              </StickyActionFooter>
             </form>
           </div>
         ) : null}
 
         {mobile_view === 'list' ? (
-          <div className="space-y-4 rounded-3xl border border-brand-border/70 bg-brand-surface/95 p-4 shadow-xl shadow-brand-primary/5">
+          <div className="space-y-3 rounded-2xl border border-brand-border/70 bg-brand-surface/95 p-3 shadow-lg shadow-brand-primary/5 lg:rounded-3xl lg:p-4">
             {isLoading ? <LoadingState message="Cargando rodeos..." /> : null}
 
             {isError ? (

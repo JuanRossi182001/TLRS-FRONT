@@ -25,8 +25,25 @@ export function AdminTablePlaceholder<T>({
   badgeLabel = 'Admin API',
 }: AdminTablePlaceholderProps<T>) {
   return (
-    <div className="overflow-hidden rounded-3xl border border-brand-border/60 bg-brand-surface shadow-sm shadow-brand-primary/5">
-      <div className="overflow-x-auto">
+    <div className="overflow-hidden rounded-2xl border border-brand-border/60 bg-brand-surface shadow-sm shadow-brand-primary/5 lg:rounded-3xl">
+      <div className="divide-y divide-brand-border/60 lg:hidden">
+        {rows.map((row) => (
+          <article className="space-y-2 p-3" key={getRowId(row)}>
+            <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+              {columns.map((column, index) => (
+                <div className={index === 0 ? 'col-span-2' : ''} key={String(column.key)}>
+                  <dt className="text-[11px] font-medium text-brand-muted">{column.label}</dt>
+                  <dd className="mt-0.5 break-words font-medium text-brand-text">
+                    {column.render ? column.render(row) : String(row[column.key] ?? 'Sin datos')}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            {renderActions ? <div className="flex flex-wrap gap-2 border-t border-brand-border/50 pt-2">{renderActions(row)}</div> : null}
+          </article>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-full divide-y divide-brand-border/60 text-sm">
           <thead className="bg-brand-surfaceSoft text-left text-xs uppercase tracking-wide text-brand-muted">
             <tr>
@@ -54,8 +71,8 @@ export function AdminTablePlaceholder<T>({
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-between gap-3 border-t border-brand-border/60 bg-brand-surfaceSoft px-5 py-4">
-        <p className="text-sm text-brand-muted">{note}</p>
+      <div className="flex items-center justify-between gap-3 border-t border-brand-border/60 bg-brand-surfaceSoft px-3 py-3 lg:px-5 lg:py-4">
+        <p className="text-xs text-brand-muted lg:text-sm">{note}</p>
         <StatusBadge label={badgeLabel} />
       </div>
     </div>

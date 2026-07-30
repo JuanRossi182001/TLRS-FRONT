@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Card, EmptyState, ErrorState, LoadingState, PageHeader } from '../../../shared/components';
+import { Button, EmptyState, ErrorState, LoadingState, MobilePaginationControls, PageHeader, StatCard } from '../../../shared/components';
 import { DeviceList } from '../components/DeviceList';
 import { useMyDevices } from '../hooks/useMyDevices';
 
@@ -78,33 +78,18 @@ export function DevicesPage() {
   };
 
   return (
-    <section className="space-y-5 xl:space-y-3">
+    <section className="space-y-4 lg:space-y-5 xl:space-y-3">
       <PageHeader
         title="Dispositivos"
         description="Rastreadores GPS asociados a tu client y, cuando corresponda, a un asset."
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <Card className="bg-brand-primary p-4 text-center text-white xl:p-3">
-          <p className="text-xs font-medium text-brand-primary/70 xl:text-[11px]">Total devices</p>
-          <p className="mt-2 text-2xl font-semibold text-brand-primary xl:text-xl">{stats?.totalDevices ?? totalDevices}</p>
-        </Card>
-        <Card className="bg-brand-surface p-4 text-center xl:p-3">
-          <p className="text-xs font-medium text-brand-muted xl:text-[11px]">Online</p>
-          <p className="mt-2 text-2xl font-semibold text-brand-success xl:text-xl">{online}</p>
-        </Card>
-        <Card className="p-4 text-center xl:p-3">
-          <p className="text-xs font-medium text-brand-muted xl:text-[11px]">Offline</p>
-          <p className="mt-2 text-2xl font-semibold text-brand-danger xl:text-xl">{offline}</p>
-        </Card>
-        <Card className="bg-brand-accent p-4 text-center text-brand-primary xl:p-3">
-          <p className="text-xs font-medium text-brand-primary/70 xl:text-[11px]">Activos</p>
-          <p className="mt-2 text-2xl font-semibold text-brand-primary xl:text-xl">{activeDevices}</p>
-        </Card>
-        <Card className="p-4 text-center xl:p-3">
-          <p className="text-xs font-medium text-brand-muted xl:text-[11px]">Inactivos</p>
-          <p className="mt-2 text-2xl font-semibold text-brand-muted xl:text-xl">{inactiveDevices}</p>
-        </Card>
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-5">
+        <StatCard className="col-span-2 xl:col-span-1" label="Total dispositivos" tone="accent" value={stats?.totalDevices ?? totalDevices} />
+        <StatCard label="Online" tone="success" value={online} />
+        <StatCard label="Offline" tone="danger" value={offline} />
+        <StatCard label="Activos" tone="accent" value={activeDevices} />
+        <StatCard label="Inactivos" value={inactiveDevices} />
       </div>
 
       {isLoading ? <LoadingState message="Cargando dispositivos..." /> : null}
@@ -142,6 +127,16 @@ export function DevicesPage() {
                   Pagina {currentPage} de {totalPages}
                 </span>
               </div>
+
+              {totalPages > 1 ? (
+                <MobilePaginationControls
+                  canGoNext={canGoNext}
+                  canGoPrevious={canGoPrevious}
+                  isLoading={isFetching}
+                  onNext={goToNextPage}
+                  onPrevious={goToPreviousPage}
+                />
+              ) : null}
 
               <div className="relative overflow-hidden rounded-3xl">
                 <div

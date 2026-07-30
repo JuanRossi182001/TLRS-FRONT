@@ -82,7 +82,7 @@ export function RodeoAssetSelector({
       </div>
 
       <input
-        className="w-full rounded-2xl border border-brand-border bg-white px-3 py-2.5 text-xs outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 md:px-3 md:py-2.5 md:text-[13px]"
+        className="min-h-10 w-full rounded-2xl border border-brand-border bg-white px-3 py-2 text-xs outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15 md:px-3 md:py-2.5 md:text-[13px]"
         onChange={(event) => setSearch(event.target.value)}
         placeholder={search_placeholder}
         value={search}
@@ -95,12 +95,12 @@ export function RodeoAssetSelector({
           <div className="grid gap-2 sm:grid-cols-2">
             {pagedOptions.map((option) => (
             <label
-              className="flex items-start gap-2.5 rounded-2xl border border-brand-border bg-white p-2.5 text-xs text-brand-text md:gap-2.5 md:p-2.5 md:text-[13px]"
+               className="flex min-h-12 items-center gap-2.5 rounded-2xl border border-brand-border bg-white px-2.5 py-2 text-xs text-brand-text md:gap-2.5 md:p-2.5 md:text-[13px]"
               key={option.asset_id}
             >
               <input
                 checked={selected_asset_ids.includes(option.asset_id)}
-                className="mt-1 h-4 w-4 accent-brand-primary"
+                 className="h-5 w-5 shrink-0 accent-brand-primary"
                 onChange={(event) => handleToggle(option.asset_id, event.target.checked)}
                 type="checkbox"
               />

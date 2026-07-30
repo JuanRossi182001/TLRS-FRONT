@@ -126,7 +126,7 @@ export function GeofenceStatesList() {
           </span>
         </div>
 
-        <div className="relative min-h-0 flex-1 overflow-hidden rounded-3xl">
+        <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl lg:rounded-3xl">
           <div
             className={[
               'grid gap-3 transition duration-400 ease-out sm:grid-cols-2 xl:grid-cols-2 xl:gap-2',
@@ -139,7 +139,7 @@ export function GeofenceStatesList() {
 
               return (
                 <Card
-                  className="w-full max-w-[34rem] space-y-2.5 p-3.5 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-primary/10 xl:space-y-2 xl:p-3"
+                   className="w-full max-w-[34rem] space-y-2 p-3 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-primary/10 xl:space-y-2 xl:p-3"
                   key={`${state.asset_id}-${state.fence_id}`}
                 >
                   <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between">

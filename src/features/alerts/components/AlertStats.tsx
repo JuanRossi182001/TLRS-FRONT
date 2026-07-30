@@ -12,8 +12,8 @@ export function AlertStats({ stats, relevanceFilter }: AlertStatsProps) {
       label: 'Total eventos',
       value: stats.totalEvents,
       className: 'bg-brand-primary text-white',
-      labelClassName: 'text-brand-primary/70',
-      valueClassName: 'text-brand-primary',
+      labelClassName: 'text-white/75',
+      valueClassName: 'text-white',
       isImportant: true,
     },
     {
@@ -57,9 +57,9 @@ export function AlertStats({ stats, relevanceFilter }: AlertStatsProps) {
     : 'grid-cols-2 xl:grid-cols-5';
 
   return (
-    <div className={['grid gap-2 xl:gap-3', gridClassName].join(' ')}>
-      {visibleCards.map((stat) => (
-        <Card className={['p-3 text-center xl:p-3', stat.className].join(' ').trim()} key={stat.label}>
+      <div className={['grid gap-2 xl:gap-3', gridClassName].join(' ')}>
+      {visibleCards.map((stat, index) => (
+        <Card className={['min-h-[76px] p-3 text-center xl:p-3', index === 0 ? 'col-span-2 xl:col-span-1' : '', stat.className].join(' ').trim()} density="compact" key={stat.label}>
           <p className={['text-xs font-medium xl:text-[11px]', stat.labelClassName].join(' ')}>{stat.label}</p>
           <p className={['mt-1.5 text-xl font-semibold xl:text-xl', stat.valueClassName].join(' ')}>{stat.value}</p>
         </Card>

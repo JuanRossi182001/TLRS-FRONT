@@ -33,7 +33,7 @@ function getMetadata(event: GeoFenceEventRead) {
 
 export function AlertEventCard({ event }: AlertEventCardProps) {
   return (
-    <Card className="flex h-full flex-col space-y-3 p-4 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-primary/10 xl:space-y-2 xl:p-3">
+    <Card className="flex h-full flex-col space-y-2.5 p-3 transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand-primary/10 xl:space-y-2 xl:p-3" density="compact">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <AlertEventTypeBadge event_type={event.event_type} />
@@ -50,34 +50,16 @@ export function AlertEventCard({ event }: AlertEventCardProps) {
         <p className="mt-1 text-xs leading-4 text-brand-muted">{getMetadata(event)}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 text-xs xl:mt-auto">
-        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Geocerca</p>
-          <p className="mt-1 font-semibold text-brand-text">#{event.fence_id}</p>
-        </div>
-        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Dispositivo</p>
-          <p className="mt-1 font-semibold text-brand-text">{event.device_serial}</p>
-        </div>
-        <div className="rounded-xl bg-brand-surfaceSoft p-2.5 xl:p-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Ubicacion</p>
-          <p className="mt-1 font-semibold text-brand-text">#{event.location_id}</p>
-        </div>
+      <dl className="grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-brand-border/60 pt-2 text-xs xl:mt-auto">
+        <div><dt className="text-brand-muted">Geocerca</dt><dd className="font-semibold text-brand-text">#{event.fence_id}</dd></div>
+        <div><dt className="text-brand-muted">Dispositivo</dt><dd className="font-semibold text-brand-text">{event.device_serial}</dd></div>
         {event.distance_to_boundary_meters !== null ? (
-          <div className="rounded-xl bg-blue-50 p-2.5 xl:p-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Distancia</p>
-            <p className="mt-1 font-semibold text-brand-text">
-              {event.distance_to_boundary_meters.toFixed(1)} m del limite
-            </p>
-          </div>
+          <div><dt className="text-brand-muted">Distancia</dt><dd className="font-semibold text-brand-text">{event.distance_to_boundary_meters.toFixed(1)} m</dd></div>
         ) : null}
         {event.accuracy !== null ? (
-          <div className="rounded-xl bg-amber-50 p-2.5 xl:p-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted">Precision GPS</p>
-            <p className="mt-1 font-semibold text-brand-text">{event.accuracy.toFixed(1)} m</p>
-          </div>
+          <div><dt className="text-brand-muted">Precision GPS</dt><dd className="font-semibold text-brand-text">{event.accuracy.toFixed(1)} m</dd></div>
         ) : null}
-      </div>
+      </dl>
     </Card>
   );
 }

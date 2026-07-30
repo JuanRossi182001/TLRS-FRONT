@@ -37,6 +37,7 @@ export function EditGeofencePanel({
   }, [geofence.description, geofence.name]);
 
   const can_save = name.trim().length > 0 && draft_points.length >= 3;
+  const is_mobile = mode === 'mobile';
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -63,7 +64,13 @@ export function EditGeofencePanel({
   }
 
   return (
-    <Card className="border-brand-primary/20 bg-brand-surface/95 shadow-xl shadow-brand-primary/10">
+    <Card
+      className={[
+        'border-brand-primary/20 bg-brand-surface/95 shadow-xl shadow-brand-primary/10',
+        is_mobile ? 'rounded-[1.75rem] border-brand-border/70 shadow-2xl shadow-brand-primary/20 backdrop-blur-xl' : '',
+      ].join(' ')}
+    >
+      {is_mobile ? <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-brand-border" aria-hidden="true" /> : null}
       <GeofencePanelHeader
         description="Redibuja la geocerca desde el mapa moviendo, eliminando o agregando vertices."
         mode={mode}

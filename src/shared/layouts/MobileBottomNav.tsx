@@ -1,25 +1,22 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../features/auth/hooks/useAuth';
-
-const navItems = [
-  { to: '/app/map', label: 'Mapa', marker: 'M' },
-  { to: '/app/devices', label: 'Disp.', marker: 'D' },
-  { to: '/app/rodeos', label: 'Rodeos', marker: 'R' },
-  { to: '/app/geofences', label: 'Cercas', marker: 'G' },
-  { to: '/app/alerts', label: 'Alertas', marker: 'A' },
-];
+import { useAppOverlay } from './AppOverlayContext';
+import { getAppNavigation } from './navigation';
 
 export function MobileBottomNav() {
   const { isAdmin } = useAuth();
-  const visibleNavItems = isAdmin
-    ? [...navItems, { to: '/app/admin/dashboard', label: 'Admin', marker: 'P' }]
-    : navItems;
+  const { isFullScreenDialogOpen } = useAppOverlay();
+  const visibleNavItems = getAppNavigation(isAdmin);
+
+  if (isFullScreenDialogOpen) {
+    return null;
+  }
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] lg:hidden">
+    <nav aria-label="Navegacion principal" className="fixed inset-x-0 bottom-0 z-40 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] lg:hidden">
       <div
         className={[
-          'grid h-16 gap-1 rounded-full border border-brand-border/70 bg-brand-surface/95 p-1 shadow-xl shadow-brand-primary/10 backdrop-blur-xl',
+          'grid h-[var(--mobile-nav-height)] gap-0.5 rounded-2xl border border-brand-border/70 bg-brand-surface/95 p-1 shadow-lg shadow-brand-primary/10 backdrop-blur-xl',
           isAdmin ? 'grid-cols-6' : 'grid-cols-5',
         ].join(' ')}
       >
@@ -29,7 +26,7 @@ export function MobileBottomNav() {
             to={item.to}
             className={({ isActive }) =>
               [
-                'flex flex-col items-center justify-center gap-1 rounded-full text-xs font-semibold transition',
+                'flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-semibold leading-none transition',
                 isActive
                   ? 'text-brand-primary'
                   : 'text-brand-muted hover:bg-brand-surfaceSoft hover:text-brand-primary',
@@ -38,17 +35,16 @@ export function MobileBottomNav() {
           >
             {({ isActive }) => (
               <>
-                <span
+                <item.icon
                   className={[
-                    'flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold',
+                    'h-5 w-5',
                     isActive
-                      ? 'bg-brand-accent text-brand-primary'
-                      : 'bg-brand-surfaceSoft text-brand-muted',
+                      ? 'text-brand-primary'
+                      : 'text-brand-muted',
                   ].join(' ')}
-                >
-                  {item.marker}
-                </span>
-                <span>{item.label}</span>
+                  aria-hidden="true"
+                />
+                <span className="max-w-full truncate">{item.mobileLabel}</span>
               </>
             )}
           </NavLink>

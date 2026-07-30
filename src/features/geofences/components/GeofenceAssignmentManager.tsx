@@ -7,6 +7,7 @@ import {
   ErrorState,
   LoadingState,
   StatusBadge,
+  StickyActionFooter,
 } from '../../../shared/components';
 import { formatArgentinaDateTime } from '../../../shared/utils/dateTime';
 import { DeviceStateBadge } from '../../devices/components/DeviceStateBadge';
@@ -414,7 +415,7 @@ export function GeofenceAssignmentManager({
   }
 
   return (
-    <div className="space-y-3 rounded-2xl border border-brand-border bg-brand-surfaceSoft p-3 md:space-y-4 md:p-4">
+    <div className="space-y-3 md:space-y-4">
       <div>
         <h3 className="text-sm font-semibold text-brand-text">Alcance de la geocerca</h3>
         <p className="mt-1 text-xs text-brand-muted md:text-sm">
@@ -422,43 +423,11 @@ export function GeofenceAssignmentManager({
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 md:gap-3 lg:gap-4">
-          <div className="rounded-2xl border border-brand-border bg-white p-2.5 md:p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">
-              Assets directos
-            </p>
-            <p className="mt-1 text-lg font-semibold text-brand-primary md:mt-2 md:text-2xl">
-              {geofenceDetail.total_assets_direct}
-            </p>
-            <p className="mt-1 text-[11px] leading-4 text-brand-muted md:text-sm md:leading-5">
-              Asignados manualmente a esta geocerca.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-brand-border bg-white p-2.5 md:p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">
-              Rodeos asignados
-            </p>
-            <p className="mt-1 text-lg font-semibold text-brand-primary md:mt-2 md:text-2xl">
-              {geofenceDetail.total_asset_groups}
-            </p>
-            <p className="mt-1 text-[11px] leading-4 text-brand-muted md:text-sm md:leading-5">
-              Rodeos que aportan miembros a la geocerca.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-brand-border bg-white p-2.5 md:p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">
-              Assets efectivos
-            </p>
-            <p className="mt-1 text-lg font-semibold text-brand-primary md:mt-2 md:text-2xl">
-              {geofenceDetail.total_assets_effective}
-            </p>
-            <p className="mt-1 text-[11px] leading-4 text-brand-muted md:text-sm md:leading-5">
-              Total real cubierto entre directos y rodeos.
-            </p>
-          </div>
-        </div>
+      <p className="rounded-2xl bg-brand-surfaceSoft px-3 py-2 text-xs font-medium text-brand-muted">
+        <span className="font-semibold text-brand-primary">{geofenceDetail.total_assets_direct}</span> directos <span aria-hidden="true">·</span>{' '}
+        <span className="font-semibold text-brand-primary">{geofenceDetail.total_asset_groups}</span> rodeos <span aria-hidden="true">·</span>{' '}
+        <span className="font-semibold text-brand-primary">{geofenceDetail.total_assets_effective}</span> efectivos
+      </p>
 
       <div className="space-y-3 rounded-2xl border border-brand-border bg-white p-3 md:hidden">
         <div className="flex items-center justify-between gap-3">
@@ -486,20 +455,6 @@ export function GeofenceAssignmentManager({
           ))}
         </div>
 
-        <div className="flex items-center justify-between gap-2">
-          <Button
-            className="px-4 py-2 text-xs"
-            disabled={!canGoPreviousSection}
-            onClick={goToPreviousSection}
-            type="button"
-            variant="secondary"
-          >
-            Anterior
-          </Button>
-          <Button className="px-4 py-2 text-xs" disabled={!canGoNextSection} onClick={goToNextSection} type="button">
-            Siguiente
-          </Button>
-        </div>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3 lg:gap-4">
@@ -528,7 +483,7 @@ export function GeofenceAssignmentManager({
           ) : null}
 
           {geofenceDetail.assets_assigned_direct.length > 0 ? (
-            <div className="max-h-72 space-y-2 overflow-y-auto pr-1 md:max-h-96 md:space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {geofenceDetail.assets_assigned_direct.map((asset) => {
                 const assignment = assignmentByAssetId.get(asset.asset_id);
                 const assignment_id = assignment ? getAssignmentId(assignment) : null;
@@ -651,7 +606,7 @@ export function GeofenceAssignmentManager({
               message="Puedes sumar rodeos para ampliar el alcance sin perder las asignaciones directas."
             />
           ) : (
-            <div className="max-h-64 space-y-2 overflow-y-auto pr-1 md:max-h-72 md:space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {normalizedAssignedGroups.map((group) => (
                 <div
                   className="rounded-2xl border border-brand-border bg-brand-surfaceSoft p-3 md:p-4"
@@ -740,7 +695,7 @@ export function GeofenceAssignmentManager({
               message="Esta geocerca todavia no cubre assets activos por asignacion directa o rodeos."
             />
           ) : (
-            <div className="max-h-72 space-y-2 overflow-y-auto pr-1 md:max-h-[32rem] md:space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {geofenceDetail.assets_assigned_effective.map((asset) => {
                 const fallbackDevice = (devices.data ?? []).find(
                   (device) => device.asset_id === asset.asset_id,
@@ -791,6 +746,12 @@ export function GeofenceAssignmentManager({
           )}
         </CollapsibleSection>
       </div>
+      <StickyActionFooter className="md:hidden">
+        <div className="flex items-center justify-between gap-2">
+          <Button className="px-4 text-xs" disabled={!canGoPreviousSection} onClick={goToPreviousSection} type="button" variant="secondary">Anterior</Button>
+          <Button className="px-4 text-xs" disabled={!canGoNextSection} onClick={goToNextSection} type="button">Siguiente</Button>
+        </div>
+      </StickyActionFooter>
     </div>
   );
 }
