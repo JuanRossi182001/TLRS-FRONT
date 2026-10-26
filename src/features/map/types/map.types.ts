@@ -1,3 +1,5 @@
+import type { GeoFenceStatus } from '../../geofences/types/geofenceState.types';
+
 export type DeviceLatestLocation = {
   id_device: number;
   serial: string;
@@ -14,6 +16,7 @@ export type DeviceLatestLocation = {
   accuracy: number | null;
   device_timestamp: string | null;
   received_at: string;
+  geofence_states?: { fence_id: number; status: GeoFenceStatus }[];
 };
 
 export type WebSocketTicketResponse = {
@@ -34,5 +37,6 @@ export type DeviceLocationUpdatedEvent = {
     altitude: number | null;
     accuracy: number | null;
     recorded_at: string;
+    geofence_states: { fence_id: number; status: GeoFenceStatus }[];
   };
 };

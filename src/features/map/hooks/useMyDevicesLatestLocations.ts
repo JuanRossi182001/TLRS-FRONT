@@ -62,7 +62,14 @@ function isDeviceLocationUpdatedEvent(value: unknown): value is DeviceLocationUp
     typeof data.device_serial === 'string' &&
     typeof data.latitude === 'number' &&
     typeof data.longitude === 'number' &&
-    typeof data.recorded_at === 'string'
+    typeof data.recorded_at === 'string' &&
+    Array.isArray(data.geofence_states) &&
+    data.geofence_states.every(
+      (state) =>
+        state &&
+        typeof state.fence_id === 'number' &&
+        ['GPS_UNCERTAIN', 'NEAR_LIMIT', 'SAFE', 'OUTSIDE'].includes(state.status),
+    )
   );
 }
 
@@ -82,6 +89,7 @@ function mergeDeviceLatestLocation(
     accuracy: event.data.accuracy,
     device_timestamp: event.data.recorded_at,
     received_at: event.data.recorded_at,
+    geofence_states: event.data.geofence_states,
   };
 }
 

@@ -25,7 +25,7 @@ export function MapPage() {
     isLoading: isGeofencesLoading,
     error: geofencesError,
   } = useMyGeofences();
-  const { data: geofenceStates = [] } = useGeofenceStates();
+  const { data: geofenceStates = [] } = useGeofenceStates({ refetch_interval: false });
   const previousEditGeofenceIdRef = useRef<number | null>(null);
   const [isDrawingGeofence, setIsDrawingGeofence] = useState(false);
   const [isCompletingNewGeofence, setIsCompletingNewGeofence] = useState(false);

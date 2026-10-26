@@ -7,13 +7,13 @@ import type { DeviceLatestLocation } from '../types/map.types';
 
 type MapDeviceBottomSheetProps = {
   device?: DeviceLatestLocation;
-  geofenceState?: GeoFenceAssetState;
+  geofenceStates: GeoFenceAssetState[];
   onClose: () => void;
 };
 
 export function MapDeviceBottomSheet({
   device,
-  geofenceState,
+  geofenceStates,
   onClose,
 }: MapDeviceBottomSheetProps) {
   if (!device) {
@@ -45,10 +45,14 @@ export function MapDeviceBottomSheet({
         <dl className="mt-2 grid gap-1.5 text-xs">
           <div className="rounded-xl bg-brand-surfaceSoft p-2">
             <dt className="font-medium text-brand-muted">Estado geocerca</dt>
-            {geofenceState ? (
-              <dd className="mt-1.5 flex flex-wrap gap-1.5 text-brand-text">
-                <GeofenceStatusBadge current_status={geofenceState.current_status} />
-                <span>{geofenceState.geofence_name}</span>
+            {geofenceStates.length > 0 ? (
+              <dd className="mt-1.5 space-y-1.5 text-brand-text">
+                {geofenceStates.map((state) => (
+                  <div className="flex flex-wrap items-center gap-1.5" key={state.fence_id}>
+                    <GeofenceStatusBadge current_status={state.current_status} />
+                    <span>{state.geofence_name}</span>
+                  </div>
+                ))}
               </dd>
             ) : (
               <dd className="mt-1 text-brand-muted">Sin datos</dd>

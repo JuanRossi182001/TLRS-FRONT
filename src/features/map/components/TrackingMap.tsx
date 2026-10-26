@@ -76,13 +76,32 @@ export function TrackingMap({
   const selectedDevice = selectedDeviceId
     ? devices.find((device) => device.id_device === selectedDeviceId)
     : undefined;
-  const selectedDeviceState = selectedDevice
-    ? geofenceStates.find(
+  const selectedDeviceStates = selectedDevice
+    ? selectedDevice.geofence_states !== undefined
+      ? selectedDevice.geofence_states.map(({ fence_id, status }) => ({
+          asset_id: selectedDevice.asset_id ?? selectedDevice.id_device,
+          asset_name: selectedDevice.asset_name,
+          asset_type: selectedDevice.type,
+          asset_serial: selectedDevice.serial,
+          device_id: selectedDevice.id_device,
+          device_serial: selectedDevice.serial,
+          device_name: selectedDevice.name,
+          fence_id,
+          geofence_name: `Geocerca #${fence_id}`,
+          current_status: status,
+          last_location_id: selectedDevice.id_location,
+          latitude: selectedDevice.latitude,
+          longitude: selectedDevice.longitude,
+          last_distance_to_boundary_meters: null,
+          last_accuracy: selectedDevice.accuracy,
+          last_evaluated_at: selectedDevice.device_timestamp,
+        }))
+      : geofenceStates.filter(
         (state) =>
           state.device_id === selectedDevice.id_device ||
           (selectedDevice.asset_id !== null && state.asset_id === selectedDevice.asset_id),
       )
-    : undefined;
+    : [];
 
   useEffect(() => {
     if (!isMapLoaded || !editingGeofenceId || draftPoints.length === 0) {
@@ -283,7 +302,7 @@ export function TrackingMap({
         {selectedDevice && !isDrawingGeofence ? (
           <DeviceMapPopup
             device={selectedDevice}
-            geofenceState={selectedDeviceState}
+            geofenceStates={selectedDeviceStates}
             onClose={() => setSelectedDeviceId(undefined)}
           />
         ) : null}
@@ -291,7 +310,7 @@ export function TrackingMap({
 
       <MapDeviceBottomSheet
         device={isDrawingGeofence ? undefined : selectedDevice}
-        geofenceState={selectedDeviceState}
+        geofenceStates={selectedDeviceStates}
         onClose={() => setSelectedDeviceId(undefined)}
       />
     </div>
