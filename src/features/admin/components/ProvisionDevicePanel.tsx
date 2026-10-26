@@ -92,7 +92,7 @@ export function ProvisionDevicePanel({ clients }: ProvisionDevicePanelProps) {
   }
 
   return (
-    <Card className="border-brand-primary/20 bg-brand-surface/95 shadow-xl shadow-brand-primary/10">
+    <Card className="border-brand-primary/20 bg-brand-surface/95" density="compact">
       <div>
         <h2 className="text-lg font-semibold text-brand-text">Provisionar dispositivo</h2>
         <p className="mt-1 text-sm leading-5 text-brand-muted">
@@ -100,8 +100,8 @@ export function ProvisionDevicePanel({ clients }: ProvisionDevicePanelProps) {
         </p>
       </div>
 
-      <form className="mt-4 grid gap-3" onSubmit={handleSubmit}>
-        <div className="grid gap-3 sm:grid-cols-2">
+      <form className="mt-3 grid gap-2.5" onSubmit={handleSubmit}>
+        <div className="grid gap-2.5 sm:grid-cols-2">
           <label className="text-sm font-semibold text-brand-text">
             Cliente
             <select
@@ -166,7 +166,7 @@ export function ProvisionDevicePanel({ clients }: ProvisionDevicePanelProps) {
           )}
         </fieldset>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-2.5 sm:grid-cols-2">
           <label className="text-sm font-semibold text-brand-text">DevEUI<input className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-3 py-2.5 text-sm font-normal outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15" name="dev_eui" placeholder="0102030405060708" /></label>
           <label className="text-sm font-semibold text-brand-text">JoinEUI<input className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-3 py-2.5 text-sm font-normal outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15" name="join_eui" placeholder="1020304050607080" /></label>
           <label className="text-sm font-semibold text-brand-text">ID de aplicacion ChirpStack<input className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-3 py-2.5 text-sm font-normal outline-none transition focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15" name="chirpstack_application_id" /></label>

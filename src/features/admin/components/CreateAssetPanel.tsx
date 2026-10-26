@@ -40,7 +40,7 @@ export function CreateAssetPanel({ clients }: CreateAssetPanelProps) {
   }
 
   return (
-    <Card className="space-y-4">
+    <Card className="space-y-3" density="compact">
       <div>
         <h2 className="text-lg font-semibold text-brand-text">Crear activo</h2>
         <p className="mt-1 text-sm leading-5 text-brand-muted">
@@ -48,7 +48,7 @@ export function CreateAssetPanel({ clients }: CreateAssetPanelProps) {
         </p>
       </div>
 
-      <form className="grid gap-3" onSubmit={handleSubmit}>
+      <form className="grid gap-2.5" onSubmit={handleSubmit}>
         <label className="text-sm font-semibold text-brand-text">
           Cliente
           <select

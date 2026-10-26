@@ -17,7 +17,7 @@ export function MobileBottomNav() {
       <div
         className={[
           'grid h-[var(--mobile-nav-height)] gap-0.5 rounded-2xl border border-brand-border/70 bg-brand-surface/95 p-1 shadow-lg shadow-brand-primary/10 backdrop-blur-xl',
-          isAdmin ? 'grid-cols-6' : 'grid-cols-5',
+           isAdmin ? 'grid-cols-7' : 'grid-cols-6',
         ].join(' ')}
       >
         {visibleNavItems.map((item) => (

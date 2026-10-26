@@ -36,6 +36,12 @@ export async function getAllMyDevicesRaw(): Promise<DeviceApiResponse[]> {
   return devices;
 }
 
+export async function getAllMyDevices() {
+  const devices = await getAllMyDevicesRaw();
+
+  return devices.map(mapDeviceFromApi);
+}
+
 export async function getMyDevices({ skip = 0, limit = 100 }: GetMyDevicesParams = {}): Promise<MyDevicesResponse> {
   const searchParams = new URLSearchParams({
     skip: String(skip),

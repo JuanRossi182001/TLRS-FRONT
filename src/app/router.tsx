@@ -1,6 +1,8 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { LoginPage } from '../features/auth/pages/LoginPage';
 import { AlertsPage } from '../features/alerts/pages/AlertsPage';
+import { AnimalDetailPage } from '../features/animals/pages/AnimalDetailPage';
+import { AnimalsPage } from '../features/animals/pages/AnimalsPage';
 import { AdminClientsPage } from '../features/admin/pages/AdminClientsPage';
 import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage';
 import { AdminDevicesPage } from '../features/admin/pages/AdminDevicesPage';
@@ -8,6 +10,8 @@ import { AdminUsersPage } from '../features/admin/pages/AdminUsersPage';
 import { AdminRoute } from '../features/auth/components/AdminRoute';
 import { DeviceDetailPage } from '../features/devices/pages/DeviceDetailPage';
 import { DevicesPage } from '../features/devices/pages/DevicesPage';
+import { CollarDetailPage } from '../features/collars/pages/CollarDetailPage';
+import { CollarsPage } from '../features/collars/pages/CollarsPage';
 import { GeofencesPage } from '../features/geofences/pages/GeofencesPage';
 import { MapPage } from '../features/map/pages/MapPage';
 import { RodeoDetailPage } from '../features/rodeos/pages/RodeoDetailPage';
@@ -47,6 +51,22 @@ export const router = createBrowserRouter([
       {
         path: 'devices/:deviceId',
         element: <DeviceDetailPage />,
+      },
+      {
+        path: 'animals',
+        element: <AnimalsPage />,
+      },
+      {
+        path: 'animals/:assetId',
+        element: <AnimalDetailPage />,
+      },
+      {
+        path: 'collars',
+        element: <CollarsPage />,
+      },
+      {
+        path: 'collars/:deviceId',
+        element: <CollarDetailPage />,
       },
       {
         path: 'alerts',

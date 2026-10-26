@@ -29,3 +29,15 @@ export function getIsAdminFromToken(token: string | null) {
 
   return Boolean(payload?.is_admin || payload?.admin);
 }
+
+export function getClientIdFromToken(token: string | null) {
+  if (!token) {
+    return null;
+  }
+
+  const clientId = decodeJwtPayload(token)?.client_id;
+
+  return typeof clientId === 'number' && Number.isInteger(clientId) && clientId > 0
+    ? clientId
+    : null;
+}

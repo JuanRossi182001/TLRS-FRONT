@@ -9,12 +9,50 @@ type SetGeofenceActivationVariables = {
 
 export function useSetGeofenceActivation() {
   const queryClient = useQueryClient();
+  const queryKey = ['geofences', 'my-geofences'] as const;
 
-    return useMutation<GeoFenceRead, Error, SetGeofenceActivationVariables>({
+  return useMutation<GeoFenceRead, Error, SetGeofenceActivationVariables, { previousActive?: boolean }>({
     mutationFn: ({ geofence_id, payload }) => setGeofenceActivation(geofence_id, payload),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['geofences', 'my-geofences'] });
+    onMutate: async (variables) => {
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousActive = queryClient
+        .getQueryData<GeoFenceRead[]>(queryKey)
+        ?.find((geofence) => geofence.id_geofence === variables.geofence_id)?.active;
+
+      queryClient.setQueryData<GeoFenceRead[]>(queryKey, (geofences) =>
+        geofences?.map((geofence) =>
+          geofence.id_geofence === variables.geofence_id
+            ? { ...geofence, active: variables.payload.active }
+            : geofence,
+        ),
+      );
+
+      return { previousActive };
+    },
+    onError: (_error, _variables, context) => {
+      const previousActive = context?.previousActive;
+
+      if (typeof previousActive === 'boolean') {
+        queryClient.setQueryData<GeoFenceRead[]>(queryKey, (geofences) =>
+          geofences?.map((geofence) =>
+            geofence.id_geofence === _variables.geofence_id
+              ? { ...geofence, active: previousActive }
+              : geofence,
+          ),
+        );
+      }
+    },
+    onSuccess: (geofence, variables) => {
+      queryClient.setQueryData<GeoFenceRead[]>(queryKey, (geofences) =>
+        geofences?.map((currentGeofence) =>
+          currentGeofence.id_geofence === geofence.id_geofence ? geofence : currentGeofence,
+        ),
+      );
       queryClient.invalidateQueries({ queryKey: ['geofences', variables.geofence_id, 'detail'] });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
     },
   });
 }

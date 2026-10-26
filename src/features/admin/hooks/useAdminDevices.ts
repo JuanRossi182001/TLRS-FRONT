@@ -41,6 +41,9 @@ function invalidateProvisioningData(queryClient: ReturnType<typeof useQueryClien
   queryClient.invalidateQueries({ queryKey: ['admin', 'available-assets'] });
   queryClient.invalidateQueries({ queryKey: ['admin', 'clients'] });
   queryClient.invalidateQueries({ queryKey: ['admin', 'stats'] });
+  queryClient.invalidateQueries({ queryKey: ['animals', 'my-assets'] });
+  queryClient.invalidateQueries({ queryKey: ['devices', 'my-devices'] });
+  queryClient.invalidateQueries({ queryKey: ['devices', 'my-devices', 'latest-locations'] });
 }
 
 export function useAvailableAssets(client_id: number | null) {

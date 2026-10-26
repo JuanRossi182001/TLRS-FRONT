@@ -8,6 +8,7 @@ import { useGeofenceStates } from '../../geofences/hooks/useGeofenceStates';
 import { useMyGeofences } from '../../geofences/hooks/useMyGeofences';
 import type { Position } from '../../geofences/types/geofence.types';
 import { getDraftPointsFromShape } from '../../geofences/utils/geofenceShape';
+import { MapGeofenceActivationControl } from '../components/MapGeofenceActivationControl';
 import { useMyDevicesLatestLocations } from '../hooks/useMyDevicesLatestLocations';
 
 const TrackingMap = lazy(async () => {
@@ -29,6 +30,7 @@ export function MapPage() {
   const [isDrawingGeofence, setIsDrawingGeofence] = useState(false);
   const [isCompletingNewGeofence, setIsCompletingNewGeofence] = useState(false);
   const [isEditingGeofenceDetails, setIsEditingGeofenceDetails] = useState(false);
+  const [isGeofenceActivationOpen, setIsGeofenceActivationOpen] = useState(false);
   const [draftPoints, setDraftPoints] = useState<Position[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const editGeofenceId = Number(searchParams.get('editGeofence')) || null;
@@ -94,6 +96,7 @@ export function MapPage() {
 
     setIsDrawingGeofence(true);
     setIsEditingGeofenceDetails(false);
+    setIsGeofenceActivationOpen(false);
     setDraftPoints(getDraftPointsFromShape(editingGeofence.shape));
     setSuccessMessage(null);
   }, [editingGeofence?.id_geofence]);
@@ -144,31 +147,41 @@ export function MapPage() {
             </div>
 
             <div className="pointer-events-auto flex max-w-[62%] justify-end">
-              <GeofenceDrawingControls
-                is_drawing={isDrawingGeofence}
-                on_cancel={handleCancelDrawing}
-                on_clear={() => {
-                  setDraftPoints([]);
-                  setIsCompletingNewGeofence(false);
-                  setIsEditingGeofenceDetails(false);
-                }}
-                continue_label={editingGeofence ? 'Editar datos' : 'Continuar'}
-                on_continue={
-                  isCreateGeofenceMode
-                    ? () => setIsCompletingNewGeofence(true)
-                    : editingGeofence
-                    ? () => setIsEditingGeofenceDetails(true)
-                    : undefined
-                }
-                on_start={() => {
-                  setSuccessMessage(null);
-                  clearEditGeofenceParam();
-                  setIsCompletingNewGeofence(false);
-                  setIsEditingGeofenceDetails(false);
-                  setIsDrawingGeofence(true);
-                }}
-                points_count={draftPoints.length}
-              />
+              <div className="flex flex-wrap justify-end gap-2">
+                {!isDrawingGeofence ? (
+                  <MapGeofenceActivationControl
+                    geofences={geofences}
+                    isOpen={isGeofenceActivationOpen}
+                    onOpenChange={setIsGeofenceActivationOpen}
+                  />
+                ) : null}
+                <GeofenceDrawingControls
+                  is_drawing={isDrawingGeofence}
+                  on_cancel={handleCancelDrawing}
+                  on_clear={() => {
+                    setDraftPoints([]);
+                    setIsCompletingNewGeofence(false);
+                    setIsEditingGeofenceDetails(false);
+                  }}
+                  continue_label={editingGeofence ? 'Editar datos' : 'Continuar'}
+                  on_continue={
+                    isCreateGeofenceMode
+                      ? () => setIsCompletingNewGeofence(true)
+                      : editingGeofence
+                      ? () => setIsEditingGeofenceDetails(true)
+                      : undefined
+                  }
+                  on_start={() => {
+                    setSuccessMessage(null);
+                    clearEditGeofenceParam();
+                    setIsGeofenceActivationOpen(false);
+                    setIsCompletingNewGeofence(false);
+                    setIsEditingGeofenceDetails(false);
+                    setIsDrawingGeofence(true);
+                  }}
+                  points_count={draftPoints.length}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -260,7 +273,14 @@ export function MapPage() {
             </div>
           </div>
 
-          <div className="flex justify-start sm:justify-end">
+          <div className="flex flex-wrap justify-start gap-2 sm:justify-end">
+            {!isDrawingGeofence ? (
+              <MapGeofenceActivationControl
+                geofences={geofences}
+                isOpen={isGeofenceActivationOpen}
+                onOpenChange={setIsGeofenceActivationOpen}
+              />
+            ) : null}
             <GeofenceDrawingControls
               is_drawing={isDrawingGeofence}
               on_cancel={handleCancelDrawing}
@@ -268,6 +288,7 @@ export function MapPage() {
               on_start={() => {
                 setSuccessMessage(null);
                 clearEditGeofenceParam();
+                setIsGeofenceActivationOpen(false);
                 setIsDrawingGeofence(true);
               }}
               points_count={draftPoints.length}

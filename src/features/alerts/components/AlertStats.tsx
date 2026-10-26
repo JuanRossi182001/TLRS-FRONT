@@ -12,8 +12,8 @@ export function AlertStats({ stats, relevanceFilter }: AlertStatsProps) {
       label: 'Total eventos',
       value: stats.totalEvents,
       className: 'bg-brand-primary text-white',
-      labelClassName: 'text-white/75',
-      valueClassName: 'text-white',
+      labelClassName: 'text-black',
+      valueClassName: 'text-black',
       isImportant: true,
     },
     {
