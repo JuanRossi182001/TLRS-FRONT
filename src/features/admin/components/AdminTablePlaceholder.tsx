@@ -21,8 +21,6 @@ export function AdminTablePlaceholder<T>({
   rows,
   getRowId,
   renderActions,
-  note = 'Datos obtenidos desde los endpoints admin.',
-  badgeLabel = 'Admin API',
 }: AdminTablePlaceholderProps<T>) {
   return (
     <div className="overflow-hidden rounded-2xl border border-brand-border/60 bg-brand-surface shadow-sm shadow-brand-primary/5 lg:rounded-3xl">
@@ -72,8 +70,6 @@ export function AdminTablePlaceholder<T>({
         </table>
       </div>
       <div className="flex items-center justify-between gap-3 border-t border-brand-border/60 bg-brand-surfaceSoft px-3 py-3 lg:px-5 lg:py-4">
-        <p className="text-xs text-brand-muted lg:text-sm">{note}</p>
-        <StatusBadge label={badgeLabel} />
       </div>
     </div>
   );

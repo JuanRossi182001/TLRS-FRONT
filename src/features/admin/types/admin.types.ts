@@ -37,6 +37,12 @@ export type AdminClient = {
   user_count: number;
 };
 
+export type AdminClientDetails = Pick<AdminClient, 'id_client' | 'name' | 'email'>;
+
+export type AdminClientCreateRequest = Pick<AdminClient, 'name' | 'email'>;
+
+export type AdminClientUpdateRequest = Partial<AdminClientCreateRequest>;
+
 export type AdminUser = {
   id_user: number;
   name: string;

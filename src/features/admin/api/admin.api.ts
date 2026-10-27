@@ -1,6 +1,9 @@
 import { apiFetch } from '../../../shared/api/httpClient';
 import type {
   AdminClient,
+  AdminClientCreateRequest,
+  AdminClientDetails,
+  AdminClientUpdateRequest,
   AdminDeviceListItem,
   AdminDeviceUpdateRequest,
   AdminDeviceUpdateResponse,
@@ -21,6 +24,28 @@ export function getAdminDevices(skip = 0, limit = 100) {
 
 export function getAdminClients() {
   return apiFetch<AdminClient[]>('/admin/clients');
+}
+
+export function getAdminClient(client_id: number) {
+  return apiFetch<AdminClientDetails>(`/admin/clients/${client_id}`);
+}
+
+export function createAdminClient(payload: AdminClientCreateRequest) {
+  return apiFetch<AdminClientDetails>('/admin/clients', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateAdminClient(client_id: number, payload: AdminClientUpdateRequest) {
+  return apiFetch<AdminClientDetails>(`/admin/clients/${client_id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteAdminClient(client_id: number) {
+  return apiFetch<void>(`/admin/clients/${client_id}`, { method: 'DELETE' });
 }
 
 export function getAdminClientUsers(client_id: number) {

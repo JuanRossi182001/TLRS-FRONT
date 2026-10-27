@@ -117,7 +117,6 @@ export function AdminUsersPage() {
             </Button>
           </div>
         )}
-        note="Los usuarios se consultan por cliente. Desactivar ya usa el endpoint admin."
       />
       ) : null}
     </section>
