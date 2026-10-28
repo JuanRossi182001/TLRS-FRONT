@@ -13,10 +13,17 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname;
+  const from = (
+    location.state as
+      | { from?: { pathname?: string; search?: string; hash?: string } }
+      | null
+  )?.from;
+  const returnTo = from?.pathname?.startsWith('/') && !from.pathname.startsWith('//')
+    ? `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`
+    : null;
 
   if (isAuthenticated) {
-    return <Navigate to="/app/map" replace />;
+    return <Navigate to={returnTo ?? '/app/map'} replace />;
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -36,7 +43,7 @@ export function LoginPage() {
     try {
       setIsSubmitting(true);
       await login(username.trim(), password);
-      navigate(from ?? '/app/map', { replace: true });
+      navigate(returnTo ?? '/app/map', { replace: true });
     } catch (loginError) {
       setError(
         loginError instanceof Error

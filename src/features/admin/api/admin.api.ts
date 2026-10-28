@@ -5,6 +5,7 @@ import type {
   AdminClientDetails,
   AdminClientUpdateRequest,
   AdminDeviceListItem,
+  AdminDeviceQrTokenResponse,
   AdminDeviceUpdateRequest,
   AdminDeviceUpdateResponse,
   AdminStats,
@@ -20,6 +21,10 @@ export function getAdminStats() {
 
 export function getAdminDevices(skip = 0, limit = 100) {
   return apiFetch<AdminDeviceListItem[]>(`/admin/devices?skip=${skip}&limit=${limit}`);
+}
+
+export function getAdminDeviceQrToken(device_id: number) {
+  return apiFetch<AdminDeviceQrTokenResponse>(`/devices/${device_id}/qr`);
 }
 
 export function getAdminClients() {

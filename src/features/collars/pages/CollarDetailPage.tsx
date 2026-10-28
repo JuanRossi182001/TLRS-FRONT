@@ -8,27 +8,32 @@ import { useAllMyDevices } from '../../devices/hooks/useAllMyDevices';
 import { CollarAssignmentDialog } from '../components/CollarAssignmentDialog';
 import { CollarConnectionBadge } from '../components/CollarConnectionBadge';
 import { useReleaseCollar } from '../hooks/useCollarAssignment';
+import type { Device } from '../../devices/types/device.types';
 
 type Action = 'assign' | 'change' | 'release' | null;
+
+type CollarDetailPageProps = {
+  resolvedDevice?: Device;
+};
 
 function collarName(name: string, serial: string) {
   return name.trim() || serial;
 }
 
-export function CollarDetailPage() {
+export function CollarDetailPage({ resolvedDevice }: CollarDetailPageProps) {
   const { deviceId } = useParams<{ deviceId: string }>();
   const idDevice = Number(deviceId);
   const [action, setAction] = useState<Action>(null);
   const [releaseError, setReleaseError] = useState<string | null>(null);
   const [releaseSuccess, setReleaseSuccess] = useState(false);
-  const devicesQuery = useAllMyDevices();
+  const devicesQuery = useAllMyDevices(!resolvedDevice);
   const animalsQuery = useAnimals();
   const rodeosQuery = useAnimalRodeos();
   const releaseCollar = useReleaseCollar();
-  const device = (devicesQuery.data ?? []).find((item) => item.idDevice === idDevice);
+  const device = resolvedDevice ?? (devicesQuery.data ?? []).find((item) => item.idDevice === idDevice);
   const animal = device?.assetId ? (animalsQuery.data ?? []).find((item) => item.id_asset === device.assetId) : undefined;
-  const isLoading = devicesQuery.isLoading || animalsQuery.isLoading || rodeosQuery.isLoading;
-  const error = devicesQuery.error ?? animalsQuery.error ?? rodeosQuery.error;
+  const isLoading = (!resolvedDevice && devicesQuery.isLoading) || animalsQuery.isLoading || rodeosQuery.isLoading;
+  const error = animalsQuery.error ?? rodeosQuery.error ?? (resolvedDevice ? null : devicesQuery.error);
 
   async function release() {
     if (!device) return;

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { DeviceStateBadge } from '../../devices/components/DeviceStateBadge';
 import { getDeviceAssetName } from '../../devices/types/device.types';
 import { GeofenceStatusBadge } from '../../geofences/components/GeofenceStatusBadge';
+import { AdminDeviceQrSection } from './AdminDeviceQrSection';
 import type { AdminDeviceListItem } from '../types/admin.types';
 
 type AdminDeviceDetailDialogProps = {
@@ -85,6 +86,8 @@ export function AdminDeviceDetailDialog({
             <DetailItem label="Device Profile ChirpStack" value={device.chirpstack_device_profile_id ?? 'Sin datos'} />
           </dl>
         </section>
+
+        <AdminDeviceQrSection deviceId={device.id_device} serial={device.serial} />
       </div>
     </ResponsiveDialog>
   );

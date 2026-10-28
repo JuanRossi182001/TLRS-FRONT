@@ -12,6 +12,7 @@ import { DeviceDetailPage } from '../features/devices/pages/DeviceDetailPage';
 import { DevicesPage } from '../features/devices/pages/DevicesPage';
 import { CollarDetailPage } from '../features/collars/pages/CollarDetailPage';
 import { CollarsPage } from '../features/collars/pages/CollarsPage';
+import { QrCollarPage } from '../features/collars/pages/QrCollarPage';
 import { GeofencesPage } from '../features/geofences/pages/GeofencesPage';
 import { MapPage } from '../features/map/pages/MapPage';
 import { RodeoDetailPage } from '../features/rodeos/pages/RodeoDetailPage';
@@ -27,6 +28,20 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/c/:token',
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <QrCollarPage />,
+      },
+    ],
   },
   {
     path: '/app',

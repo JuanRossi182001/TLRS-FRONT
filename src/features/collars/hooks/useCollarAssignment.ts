@@ -4,6 +4,7 @@ import { reassignDeviceAsset, releaseDeviceAsset } from '../../admin/api/admin.a
 function invalidateCollarData(queryClient: ReturnType<typeof useQueryClient>) {
   queryClient.invalidateQueries({ queryKey: ['animals', 'my-assets'] });
   queryClient.invalidateQueries({ queryKey: ['devices', 'my-devices'] });
+  queryClient.invalidateQueries({ queryKey: ['devices', 'qr'] });
   queryClient.invalidateQueries({ queryKey: ['devices', 'my-devices', 'latest-locations'] });
   queryClient.invalidateQueries({ queryKey: ['rodeos'] });
   queryClient.invalidateQueries({ queryKey: ['admin', 'devices'] });

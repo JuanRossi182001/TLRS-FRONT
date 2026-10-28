@@ -3,6 +3,8 @@ import {
   mapDeviceFromApi,
   mapMyDevicesStatsFromApi,
   type DeviceApiResponse,
+  mapDeviceQrResolveFromApi,
+  type DeviceQrResolveApiResponse,
   type MyDevicesApiResponse,
   type MyDevicesResponse,
 } from '../types/device.types';
@@ -13,6 +15,13 @@ export type GetMyDevicesParams = {
 };
 
 const maxDevicesPageLimit = 500;
+
+export async function resolveDeviceByQrToken(token: string) {
+  const response = await apiFetch<DeviceQrResolveApiResponse>(
+    `/devices/by-qr/${encodeURIComponent(token)}`,
+  );
+  return mapDeviceQrResolveFromApi(response);
+}
 
 export async function getAllMyDevicesRaw(): Promise<DeviceApiResponse[]> {
   let skip = 0;

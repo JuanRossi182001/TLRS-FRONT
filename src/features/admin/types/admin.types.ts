@@ -29,6 +29,10 @@ export type AdminDeviceListItem = {
   status: GeoFenceStatus;
 };
 
+export type AdminDeviceQrTokenResponse = {
+  qr_token: string;
+};
+
 export type AdminClient = {
   id_client: number;
   name: string;

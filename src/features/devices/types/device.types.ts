@@ -17,6 +17,21 @@ export type DeviceApiResponse = {
   active: boolean;
 };
 
+export type DeviceQrResolveApiResponse = {
+  id_device: number;
+  serial: string;
+  name: string;
+  type: string;
+  state: string;
+  active: boolean;
+  asset: {
+    id_asset: number;
+    serial: string;
+    asset_type: string;
+    status: string;
+  } | null;
+};
+
 export type MyDevicesApiResponse = {
   total: number;
   skip: number;
@@ -140,6 +155,24 @@ export function mapDeviceFromApi(device: DeviceApiResponse): Device {
     assetName: device.asset_name ?? null,
     assetSerial: device.asset_serial ?? null,
     active: device.active,
+  };
+}
+
+export function mapDeviceQrResolveFromApi(
+  response: DeviceQrResolveApiResponse,
+): Device {
+  return {
+    idDevice: response.id_device,
+    serial: response.serial,
+    name: response.name,
+    type: response.type,
+    state: response.state,
+    communicationProtocol: 'unknown',
+    clientId: null,
+    assetId: response.asset?.id_asset ?? null,
+    assetName: response.asset?.asset_type ?? null,
+    assetSerial: response.asset?.serial ?? null,
+    active: response.active,
   };
 }
 
