@@ -15,10 +15,8 @@ export function MobileBottomNav() {
   return (
     <nav aria-label="Navegacion principal" className="fixed inset-x-0 bottom-0 z-40 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] lg:hidden">
       <div
-        className={[
-          'grid h-[var(--mobile-nav-height)] gap-0.5 rounded-2xl border border-brand-border/70 bg-brand-surface/95 p-1 shadow-lg shadow-brand-primary/10 backdrop-blur-xl',
-           isAdmin ? 'grid-cols-7' : 'grid-cols-6',
-        ].join(' ')}
+        className="grid h-[var(--mobile-nav-height)] gap-0.5 rounded-2xl border border-brand-border/70 bg-brand-surface/95 p-1 shadow-lg shadow-brand-primary/10 backdrop-blur-xl"
+        style={{ gridTemplateColumns: `repeat(${visibleNavItems.length}, minmax(0, 1fr))` }}
       >
         {visibleNavItems.map((item) => (
           <NavLink

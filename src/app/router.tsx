@@ -15,6 +15,7 @@ import { CollarsPage } from '../features/collars/pages/CollarsPage';
 import { QrCollarPage } from '../features/collars/pages/QrCollarPage';
 import { GeofencesPage } from '../features/geofences/pages/GeofencesPage';
 import { MapPage } from '../features/map/pages/MapPage';
+import { HeatmapsPage } from '../features/heatmaps/pages/HeatmapsPage';
 import { RodeoDetailPage } from '../features/rodeos/pages/RodeoDetailPage';
 import { RodeosPage } from '../features/rodeos/pages/RodeosPage';
 import { ProtectedRoute } from '../features/auth/components/ProtectedRoute';
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
       {
         path: 'map',
         element: <MapPage />,
+      },
+      {
+        path: 'heatmaps',
+        element: <HeatmapsPage />,
       },
       {
         path: 'devices',
