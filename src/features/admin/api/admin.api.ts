@@ -10,6 +10,8 @@ import type {
   AdminDeviceUpdateResponse,
   AdminStats,
   AdminUser,
+  AdminUserInviteRequest,
+  AdminUserInviteResponse,
   AvailableAsset,
   CreateAssetRequest,
   ProvisionDeviceRequest,
@@ -55,6 +57,13 @@ export function deleteAdminClient(client_id: number) {
 
 export function getAdminClientUsers(client_id: number) {
   return apiFetch<AdminUser[]>(`/admin/clients/${client_id}/users`);
+}
+
+export function createAdminUser(payload: AdminUserInviteRequest) {
+  return apiFetch<AdminUserInviteResponse>('/user', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
 }
 
 export function updateAdminDevice(device_id: number, payload: AdminDeviceUpdateRequest) {

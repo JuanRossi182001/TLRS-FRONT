@@ -38,3 +38,57 @@ export function logoutRequest() {
     credentials: 'include',
   });
 }
+
+export function requestPasswordReset(email: string) {
+  return apiFetch<{ message: string }>('/user/auth/password-reset/request', {
+    method: 'POST',
+    skipAuth: true,
+    skipRefresh: true,
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function confirmPasswordReset(token: string, new_password: string) {
+  return apiFetch<{ message: string }>('/user/auth/password-reset/confirm', {
+    method: 'POST',
+    skipAuth: true,
+    skipRefresh: true,
+    body: JSON.stringify({ token, new_password }),
+  });
+}
+
+export function confirmEmailVerification(token: string) {
+  return apiFetch<{ message: string }>('/user/auth/email-verification/confirm', {
+    method: 'POST',
+    skipAuth: true,
+    skipRefresh: true,
+    body: JSON.stringify({ token }),
+  });
+}
+
+export function requestEmailVerification(email: string) {
+  return apiFetch<{ message: string }>('/user/auth/email-verification/request', {
+    method: 'POST',
+    skipAuth: true,
+    skipRefresh: true,
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function requestAccountActivation(email: string) {
+  return apiFetch<{ message: string }>('/user/auth/account-activation/request', {
+    method: 'POST',
+    skipAuth: true,
+    skipRefresh: true,
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function activateAccount(token: string, new_password: string) {
+  return apiFetch<{ message: string }>('/user/auth/account-activation/confirm', {
+    method: 'POST',
+    skipAuth: true,
+    skipRefresh: true,
+    body: JSON.stringify({ token, new_password }),
+  });
+}

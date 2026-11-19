@@ -1,9 +1,15 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Button, EmptyState, ErrorState, LoadingState, StatusBadge } from '../../../shared/components';
+import { ApiError } from '../../../shared/api/httpClient';
+import { Button, Card, EmptyState, ErrorState, LoadingState, StatusBadge } from '../../../shared/components';
 import { AdminPageHeader } from '../components/AdminPageHeader';
 import { AdminTablePlaceholder } from '../components/AdminTablePlaceholder';
-import { useAdminClientUsers, useDeactivateAdminUser } from '../hooks/useAdminClientUsers';
+import {
+  useAdminClientUsers,
+  useCreateAdminUser,
+  useDeactivateAdminUser,
+} from '../hooks/useAdminClientUsers';
 import { useAdminClients } from '../hooks/useAdminClients';
 import type { AdminUser } from '../types/admin.types';
 
@@ -12,7 +18,10 @@ export function AdminUsersPage() {
   const { data: clients = [], isLoading: isLoadingClients, isError: isClientsError, error: clientsError } = useAdminClients();
   const selectedClientId = Number(searchParams.get('client_id')) || clients[0]?.id_client;
   const { data: users = [], isLoading: isLoadingUsers, isError: isUsersError, error: usersError } = useAdminClientUsers(selectedClientId);
+  const createUser = useCreateAdminUser(selectedClientId);
   const deactivateUser = useDeactivateAdminUser(selectedClientId);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createMessage, setCreateMessage] = useState<string | null>(null);
 
   const clientOptions = useMemo(
     () => clients.map((client) => ({ id: client.id_client, label: client.name })),
@@ -24,6 +33,48 @@ export function AdminUsersPage() {
       setSearchParams({ client_id: String(clients[0].id_client) }, { replace: true });
     }
   }, [clients, searchParams, setSearchParams]);
+
+  async function handleCreateUser(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedClientId) return;
+    setCreateError(null);
+    setCreateMessage(null);
+
+    const form = event.currentTarget;
+    const values = new FormData(form);
+    const name = String(values.get('name') ?? '').trim();
+    const email = String(values.get('email') ?? '').trim();
+    if (!name || !email) {
+      setCreateError('Completa el nombre y el correo de la persona.');
+      return;
+    }
+
+    try {
+      const created = await createUser.mutateAsync({
+        name,
+        email,
+        id_client: selectedClientId,
+      });
+      form.reset();
+      setCreateMessage(
+        created.invitation_email_sent
+          ? `Cuenta creada. Enviamos a ${created.email} un enlace para activarla y definir su contraseña.`
+          : `Cuenta creada, pero no pudimos enviar el correo a ${created.email}. La persona puede solicitar un nuevo enlace en «Activar cuenta».`,
+      );
+    } catch (mutationError) {
+      if (mutationError instanceof ApiError && mutationError.status === 409) {
+        setCreateError('Ya existe un usuario con ese nombre o correo.');
+      } else if (mutationError instanceof ApiError && mutationError.status === 403) {
+        setCreateError('No tienes permisos para crear usuarios.');
+      } else {
+        setCreateError(
+          mutationError instanceof Error
+            ? mutationError.message
+            : 'No pudimos crear la cuenta.',
+        );
+      }
+    }
+  }
 
   if (isLoadingClients) {
     return <LoadingState message="Cargando clientes..." />;
@@ -66,6 +117,55 @@ export function AdminUsersPage() {
           </select>
         </div>
       )}
+
+      {selectedClientId ? (
+        <Card className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-brand-text">Invitar usuario</h2>
+            <p className="mt-1 text-sm text-brand-muted">
+              La persona recibirá un enlace para activar su cuenta y crear su contraseña.
+            </p>
+          </div>
+          <form className="grid gap-3 sm:grid-cols-2" onSubmit={handleCreateUser}>
+            <label className="text-sm font-semibold text-brand-text">
+              Nombre
+              <input
+                className="mt-1.5 w-full rounded-xl border border-brand-border bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+                name="name"
+                required
+                maxLength={200}
+                autoComplete="name"
+              />
+            </label>
+            <label className="text-sm font-semibold text-brand-text">
+              Correo electrónico
+              <input
+                className="mt-1.5 w-full rounded-xl border border-brand-border bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/15"
+                name="email"
+                type="email"
+                required
+                maxLength={320}
+                autoComplete="email"
+              />
+            </label>
+            {createError ? (
+              <p className="sm:col-span-2 rounded-2xl bg-red-50 px-4 py-3 text-sm text-brand-danger">
+                {createError}
+              </p>
+            ) : null}
+            {createMessage ? (
+              <p className="sm:col-span-2 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                {createMessage}
+              </p>
+            ) : null}
+            <div className="sm:col-span-2">
+              <Button disabled={createUser.isPending} type="submit">
+                {createUser.isPending ? 'Creando cuenta…' : 'Crear y enviar invitación'}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      ) : null}
 
       {isLoadingUsers ? <LoadingState message="Cargando usuarios del cliente..." /> : null}
 

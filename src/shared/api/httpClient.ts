@@ -38,7 +38,12 @@ export function getApiBaseUrl() {
 }
 
 function isAuthPath(path: string) {
-  return path === '/user/auth/login' || path === '/user/auth/refresh' || path === '/user/auth/logout';
+  return path === '/user/auth/login'
+    || path === '/user/auth/refresh'
+    || path === '/user/auth/logout'
+    || path.startsWith('/user/auth/password-reset/')
+    || path.startsWith('/user/auth/account-activation/')
+    || path.startsWith('/user/auth/email-verification/');
 }
 
 async function getErrorMessage(response: Response) {

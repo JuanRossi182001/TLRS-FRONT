@@ -1,5 +1,11 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { LoginPage } from '../features/auth/pages/LoginPage';
+import {
+  ForgotPasswordPage,
+  ActivateAccountPage,
+  ResetPasswordPage,
+  VerifyEmailPage,
+} from '../features/auth/pages/AccountEmailPages';
 import { AlertsPage } from '../features/alerts/pages/AlertsPage';
 import { AnimalDetailPage } from '../features/animals/pages/AnimalDetailPage';
 import { AnimalsPage } from '../features/animals/pages/AnimalsPage';
@@ -29,6 +35,22 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPasswordPage />,
+  },
+  {
+    path: '/reset-password',
+    element: <ResetPasswordPage />,
+  },
+  {
+    path: '/activate-account',
+    element: <ActivateAccountPage />,
+  },
+  {
+    path: '/verify-email',
+    element: <VerifyEmailPage />,
   },
   {
     path: '/c/:token',

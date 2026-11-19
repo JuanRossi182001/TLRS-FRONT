@@ -55,6 +55,16 @@ export type AdminUser = {
   is_admin: boolean;
 };
 
+export type AdminUserInviteRequest = {
+  name: string;
+  email: string;
+  id_client: number;
+};
+
+export type AdminUserInviteResponse = AdminUser & {
+  invitation_email_sent: boolean;
+};
+
 export type AdminDeviceUpdateRequest = {
   serial: string;
   name: string;
